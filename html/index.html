@@ -89,6 +89,8 @@
                     credentials: 'include'
                 });
 
+                console.log('Body sent was' + document.getElementById('username') + ' : ' + document.getElementById('password'));
+
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const result = await response.json();
