@@ -87,15 +87,13 @@
                     credentials: 'include'
                 });
 
-                console.log('Body sent was' + document.getElementById('username') + ' : ' + document.getElementById('password'));
-
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const result = await response.json();
                 const messageDiv = document.getElementById('message');
                 messageDiv.style.display = 'block';
 
-                if (result.success) {
+                if (result.message === 'User registered successfully') {
                     messageDiv.textContent = result.message;
                     messageDiv.style.color = 'green';
 
