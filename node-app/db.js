@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const db = mysql.createConnection({
     host: '18.219.84.184',
     user: 'COSC573',
-    password: 'COSC573',
+    password: process.env.COSC_573_USER_PASSWORD,
     database: 'bookRecEngine'
 });
 
