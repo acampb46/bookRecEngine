@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title>User Dashboard</title>
+    <script>
+        function loadDashboard() {
+            // Fetch the books the user has read from the server
+            fetch('https://www.gerardcosc573.com:12348/userBooks', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    let booksList = document.getElementById('booksList');
+                    data.books.forEach(book => {
+                        let listItem = document.createElement('li');
+                        listItem.innerText = book.title;
+                        booksList.appendChild(listItem);
+                    });
+                });
+
+            var API_KEY = 'AIzaSyDQXjzN6PcphzF4F3bKX-jHbstPlmX_IVI'
+
+            // Google Books API search
+            document.getElementById('searchForm').onsubmit = function (e) {
+                e.preventDefault();
+                let query = document.getElementById('bookSearch').value;
+                fetch(`https://www.googleapis.com/books/v1/volumes?q={query}&key={API_KEY}
+`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let searchResults = document.getElementById('searchResults');
+                        searchResults.innerHTML = ''; // Clear previous results
+                        data.items.forEach(item => {
+                            let bookItem = document.createElement('div');
+                            bookItem.innerHTML = `<strong>${item.volumeInfo.title}</strong><br>${item.volumeInfo.description}`;
+                            searchResults.appendChild(bookItem);
+                        });
+                    });
+            };
+        }
+
+        window.onload = loadDashboard;
+    </script>
+</head>
+<body>
+<h1>Your Dashboard</h1>
+<h2>Books You've Read</h2>
+<ul id="booksList"></ul>
+
+<h2>Search for More Books</h2>
+<form id="searchForm">
+    <input type="text" id="bookSearch" placeholder="Search for books...">
+    <button type="submit">Search</button>
+</form>
+<div id="searchResults"></div>
+</body>
+</html>
