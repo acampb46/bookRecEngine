@@ -22,13 +22,13 @@
                     });
                 });
 
-            var API_KEY = 'AIzaSyDQXjzN6PcphzF4F3bKX-jHbstPlmX_IVI'
+            const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
 
             // Google Books API search
             document.getElementById('searchForm').onsubmit = function (e) {
                 e.preventDefault();
                 let query = document.getElementById('bookSearch').value;
-                fetch(`https://www.googleapis.com/books/v1/volumes?q={query}&key={API_KEY}
+                fetch(`https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}
 `)
                     .then(response => response.json())
                     .then(data => {

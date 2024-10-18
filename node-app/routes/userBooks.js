@@ -6,7 +6,7 @@ const db = require('../db');  // Import the database connection
 router.get('/', (req, res) => {
     if (!req.session.user) return res.status(401).send('Unauthorized');
     
-    const query = `SELECT book_title, book_isbn FROM userBooks WHERE username = ?`; // Assuming a userBooks table exists
+    const query = `SELECT book_title, book_isbn FROM userBooks WHERE username = ?`;
     db.query(query, [req.session.user], (err, result) => {
         if (err) throw err;
         res.json({ books: result });
