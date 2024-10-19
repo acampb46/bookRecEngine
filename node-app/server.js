@@ -26,6 +26,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json()); // To parse JSON bodies
 app.use('/static', express.static(path.join('/var/www/html'))); // Serve static files
 
+// Route to pass environment variables to the client
+app.get('/config', (req, res) => {
+    res.json({
+        apiKey: process.env.API_KEY,
+        dbKey: process.env.COSC_573_USER_PASSWORD,
+    });
+});
+
 // Session configuration
 app.use(session({
     secret: 'your-secret-key', resave: false, saveUninitialized: true, cookie: {secure: true}

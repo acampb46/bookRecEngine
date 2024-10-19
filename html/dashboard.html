@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="/styles.css">
     <title>User Dashboard</title>
     <script>
+        let apiKey;
+
         function loadDashboard() {
             // Fetch the books the user has read from the server
             fetch('https://www.gerardcosc573.com:12348/userBooks', {
@@ -22,25 +24,40 @@
                     });
                 });
 
-            const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-
             // Google Books API search
             document.getElementById('searchForm').onsubmit = function (e) {
                 e.preventDefault();
                 let query = document.getElementById('bookSearch').value;
-                fetch(`https://www.googleapis.com/books/v1/volumes?q={query}&key={apiKey}
-`)
-                    .then(response => response.json())
-                    .then(data => {
-                        let searchResults = document.getElementById('searchResults');
-                        searchResults.innerHTML = ''; // Clear previous results
-                        data.items.forEach(item => {
-                            let bookItem = document.createElement('div');
-                            bookItem.innerHTML = `<strong>${item.volumeInfo.title}</strong><br>${item.volumeInfo.description}`;
-                            searchResults.appendChild(bookItem);
+                getConfig().then(apiKey => {
+                    fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let searchResults = document.getElementById('searchResults');
+                            searchResults.innerHTML = ''; // Clear previous results
+                            data.items.forEach(item => {
+                                let bookItem = document.createElement('div');
+                                bookItem.innerHTML = `<strong>${item.volumeInfo.title}</strong><br>${item.volumeInfo.description}`;
+                                searchResults.appendChild(bookItem);
+                            });
                         });
-                    });
+                });
             };
+        }
+
+        // Fetch the environment variables from the server
+        async function getConfig() {
+            try {
+                const response = await fetch('/config');
+                const data = await response.json();
+
+                // Use the environment variables
+                console.log('API Key:', data.apiKey);
+                console.log('DB Key:', data.dbKey);
+
+                return data.apiKey;
+            } catch (error) {
+                console.error('Error fetching config:', error);
+            }
         }
 
         window.onload = loadDashboard;
