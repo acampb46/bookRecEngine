@@ -37,7 +37,7 @@ router.post('/', (req, res) => {
     const addBookQuery = `
         INSERT INTO userBooks (userId, title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+        `;
 
     const bookData = [
         req.session.userId,
