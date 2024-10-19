@@ -64,6 +64,18 @@ app.get('/getUserId', (req, res) => {
     }
 });
 
+// Route to logout a user
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send('Logout failed');
+        }
+        res.clearCookie('connect.sid'); // Clear session cookie
+        res.status(200).send('Logged out');
+    });
+});
+
+
 const server = https.createServer(options, app);
 
 server.listen(port, () => {

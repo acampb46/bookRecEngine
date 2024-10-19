@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Search for Books</title>
+    <script>
+        function loadSearchPage() {
+            // Google Books API search
+            document.getElementById('searchForm').onsubmit = function (e) {
+                e.preventDefault();
+                let query = document.getElementById('bookSearch').value;
+                getConfig().then(apiKey => {
+                    fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Failed to fetch from Google Books API');
+                            return response.json();
+                        })
+                        .then(data => {
+                            let searchResults = document.getElementById('searchResults');
+                            searchResults.innerHTML = ''; // Clear previous results
+                            data.items.forEach(item => {
+                                let bookItem = document.createElement('div');
+                                bookItem.innerHTML = `
+                                    <img src="${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'no-image-available.jpg'}" alt="Book cover"><br>
+                                    <strong>${item.volumeInfo.title}</strong><br>
+                                    ${item.volumeInfo.description || 'No description available.'}<br>
+                                    <button onclick="addBook(\`${item.volumeInfo.title}\`, \`${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown'}\`, \`${item.volumeInfo.publisher || 'Unknown'}\`, \`${item.volumeInfo.publishedDate || 'Unknown'}\`, \`${item.volumeInfo.description || ''}\`, \`${item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : 'Unknown'}\`, \`${item.volumeInfo.pageCount || 0}\`, \`${item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'Unknown'}\`, ${item.volumeInfo.averageRating || 0}, ${item.volumeInfo.ratingsCount || 0}, \`${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ''}\`, \`${item.saleInfo.buyLinks ? item.saleInfo.buyLinks[0].url : ''}\`, \`${item.accessInfo.webReaderLink || ''}\`)">Add to My Books</button>
+                                    <hr>
+                                `;
+                                searchResults.appendChild(bookItem);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching search results:', error);
+                        });
+                });
+            };
+        }
+
+        async function getConfig() {
+            try {
+                const response = await fetch('https://www.gerardcosc573.com:12348/config');
+                const data = await response.json();
+                return data.apiKey; // Return the API key
+            } catch (error) {
+                console.error('Error fetching config:', error);
+            }
+        }
+
+        window.onload = loadSearchPage; // Load search page on window load
+    </script>
+</head>
+<body>
+<header>
+    <nav>
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </nav>
+</header>
+
+<h1>Search for More Books</h1>
+<form id="searchForm">
+    <label for="bookSearch"></label>
+    <input type="text" id="bookSearch" placeholder="Search for books..." required>
+    <button type="submit">Search</button>
+</form>
+<div id="searchResults"></div>
+</body>
+</html>
