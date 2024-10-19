@@ -6,6 +6,45 @@
     <link rel="stylesheet" href="/styles.css">
     <title>Search for Books</title>
     <script>
+        async function addBook(title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink) {
+            const bookData = {
+                title: title,
+                author: author,
+                publisher: publisher,
+                publishedDate: publishedDate,
+                description: description,
+                ISBN: ISBN,
+                pageCount: pageCount,
+                categories: categories,
+                averageRating: averageRating,
+                ratingsCount: ratingsCount,
+                imageLink: imageLink,
+                buyLink: buyLink,
+                webReaderLink: webReaderLink
+            };
+
+            try {
+                const response = await fetch('https://www.gerardcosc573.com:12348/userBooks', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookData)
+                });
+
+                if (response.ok) {
+                    alert('Book added to your list!'); // Notify user of success
+                } else {
+                    console.error('Error adding book:', response.statusText);
+                    alert('Failed to add book.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding book.');
+            }
+        }
+
         function loadSearchPage() {
             // Google Books API search
             document.getElementById('searchForm').onsubmit = function (e) {
