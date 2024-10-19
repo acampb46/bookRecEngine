@@ -14,15 +14,21 @@
                 method: 'GET',
                 credentials: 'include'
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch books');
+                    return response.json();
+                })
                 .then(data => {
                     let booksList = document.getElementById('booksList');
                     booksList.innerHTML = ''; // Clear previous list
                     data.books.forEach(book => {
                         let listItem = document.createElement('li');
-                        listItem.innerText = book.title;
+                        listItem.innerText = book.title; // Display book title
                         booksList.appendChild(listItem);
                     });
+                })
+                .catch(error => {
+                    console.error('Error fetching user books:', error);
                 });
 
             // Google Books API search
@@ -31,7 +37,10 @@
                 let query = document.getElementById('bookSearch').value;
                 getConfig().then(apiKey => {
                     fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`)
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Failed to fetch from Google Books API');
+                            return response.json();
+                        })
                         .then(data => {
                             let searchResults = document.getElementById('searchResults');
                             searchResults.innerHTML = ''; // Clear previous results
@@ -45,15 +54,17 @@
                               `;
                                 searchResults.appendChild(bookItem);
                             });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching search results:', error);
                         });
                 });
             };
         }
 
         async function addBook(title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink) {
-            const userId = req.session.userId;
+            // Prepare book data
             const bookData = {
-                userId: userId,
                 title: title,
                 author: author,
                 publisher: publisher,
@@ -80,7 +91,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Book added to your list!');
+                    alert('Book added to your list!'); // Notify user of success
                     loadDashboard(); // Reload the book list to include the new book
                 } else {
                     console.error('Error adding book:', response.statusText);
@@ -96,13 +107,13 @@
             try {
                 const response = await fetch('/config');
                 const data = await response.json();
-                return data.apiKey;
+                return data.apiKey; // Return the API key
             } catch (error) {
                 console.error('Error fetching config:', error);
             }
         }
 
-        window.onload = loadDashboard;
+        window.onload = loadDashboard; // Load dashboard on window load
     </script>
 </head>
 <body>
