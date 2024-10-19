@@ -34,12 +34,13 @@ router.post('/', (req, res) => {
     } = req.body;
 
     // SQL query to insert the new book into the userBooks table
-    const query = `INSERT INTO userBooks (userId, title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const addBookQuery = `
+        INSERT INTO userBooks (userId, title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    // Execute the query with the relevant data
-    db.query(query, [
-        req.session.userId, // Use the userId from the session
+    const bookData = [
+        req.session.userId,
         title,
         author,
         publisher,
@@ -53,13 +54,16 @@ router.post('/', (req, res) => {
         imageLink,
         buyLink,
         webReaderLink
-    ], (err, result) => {
+    ];
+    // Execute the query with the relevant data
+    db.query(addBookQuery, bookData, (err, result) => {
         if (err) {
             console.error('Error inserting book:', err);
-            return res.status(500).send('Error adding book');
+            return res.status(500).send('Error adding book.');
         }
-        res.status(201).send('Book added successfully'); // Respond with success message
+        res.status(200).send('Book added successfully!');
     });
+
 });
 
 module.exports = router;
