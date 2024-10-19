@@ -50,7 +50,7 @@ app.use('/isLoggedIn', isLoggedInRoute);
 // Route to pass environment variables to the client
 app.get('/config', (req, res) => {
     res.json({
-        apiKey: process.env.API_KEY,
+        apiKey: process.env.GOOGLE_BOOKS_API_KEY,
         dbKey: process.env.COSC_573_USER_PASSWORD,
     });
 });
