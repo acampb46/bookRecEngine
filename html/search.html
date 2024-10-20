@@ -7,6 +7,11 @@
     <title>Search for Books</title>
     <script>
         async function addBook(title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink) {
+            // If the publishedDate is just a year, append -01-01 to make it a valid date
+            if (/^\d{4}$/.test(publishedDate)) {
+                publishedDate = `${publishedDate}-01-01`; // Converts '2003' to '2003-01-01'
+            }
+
             const bookData = {
                 title: title,
                 author: author,
