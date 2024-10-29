@@ -5,7 +5,7 @@ const pool = mysql.createPool({
     connectionLimit: 10, // Adjust the limit based on your app's needs
     host: '18.219.84.184',
     user: 'COSC573',
-    password: process.env.COSC_573_USER_PASSWORD,
+    password: 'COSC573',
     database: 'bookRecEngine'
 });
 
