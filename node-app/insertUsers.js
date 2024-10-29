@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const db = require('db'); // Ensure you have your db connection
+const db = require('./db'); // Ensure you have your db connection
 
 const insertUsers = async () => {
     const users = [];
@@ -11,15 +11,29 @@ const insertUsers = async () => {
         users.push([username, hashedPassword]);
     }
 
-    const insertQuery = 'INSERT INTO userData (username, password) VALUES ?';
+    try {
+        // Hash the password with salt rounds
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.query(insertQuery, [users], (err, result) => {
-        if (err) {
-            console.error('Error inserting users:', err);
-        } else {
-            console.log('Inserted users:', result.affectedRows);
-        }
-    });
+        // Insert new user into userData table
+        const insertQuery = 'INSERT INTO userData (username, password) VALUES (?, ?)';
+        db.query(insertQuery, [username, hashedPassword], (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Server error' });
+            }
+
+            // Set session data
+            req.session.userId = result.insertId; // Store the user ID
+            req.session.username = username; // Store the username
+
+            res.status(201).json({ message: 'User registered successfully' });
+
+        });
+    } catch (hashError) {
+        console.error(hashError);
+        res.status(500).json({ message: 'Error hashing password' });
+    }
 };
 
 insertUsers();
