@@ -6,7 +6,6 @@ const db = require('../db');
 
 // POST route for user registration
 router.post('/', async (req, res) => {
-	console.log('Incoming request body:', req.body);
     const { username, password } = req.body;
 
     if (!username || !password) {
