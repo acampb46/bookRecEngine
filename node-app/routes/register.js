@@ -35,7 +35,13 @@ router.post('/', async (req, res) => {
                     console.error(err);
                     return res.status(500).json({ message: 'Server error' });
                 }
+
+                // Set session data
+                req.session.userId = result.insertId; // Store the user ID
+                req.session.username = username; // Store the username
+
                 res.status(201).json({ message: 'User registered successfully' });
+
             });
         } catch (hashError) {
             console.error(hashError);
