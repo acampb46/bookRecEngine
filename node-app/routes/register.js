@@ -6,7 +6,6 @@ const db = require('../db');
 
 // POST route for user registration
 router.post('/', async (req, res) => {
-	console.log('Incoming request body:', req.body);
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -25,21 +24,30 @@ router.post('/', async (req, res) => {
         }
 
         try {
-            // Hash the password with salt rounds
+            // Hash password and create the user
             const hashedPassword = await bcrypt.hash(password, 10);
+            const [result] = await db.query('INSERT INTO userData (username, password) VALUES (?, ?)', [username, hashedPassword]);
 
-            // Insert new user into userData table
-            const insertQuery = 'INSERT INTO userData (username, password) VALUES (?, ?)';
-            db.query(insertQuery, [username, hashedPassword], (err, result) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).json({ message: 'Server error' });
-                }
-                res.status(201).json({ message: 'User registered successfully' });
-            });
-        } catch (hashError) {
-            console.error(hashError);
-            res.status(500).json({ message: 'Error hashing password' });
+            if (result.insertId) {
+                // Set session data for the newly created user
+                req.session.userId = result.insertId;
+                req.session.username = username;
+                req.session.loggedIn = true;
+
+                // Save the session and respond to the user
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        return res.status(500).send({ message: 'Error initializing session. Please try logging in.' });
+                    }
+                    res.status(201).send({ message: 'Account created and logged in successfully!' });
+                });
+            } else {
+                res.status(500).send({ message: 'Failed to create account.' });
+            }
+        } catch (error) {
+            console.error('Account creation error:', error);
+            res.status(500).send({ message: 'An error occurred during account creation.' });
         }
     });
 });
