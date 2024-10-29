@@ -45,7 +45,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(Object.fromEntries(formData)),
-                    credentials: 'include'
+                    credentials: 'include' // Include credentials for session management
                 });
 
                 const result = await response.json();
@@ -53,12 +53,12 @@
                 messageDiv.style.display = 'block';
 
                 if (response.ok) {
-                    messageDiv.textContent = result.message;
+                    messageDiv.textContent = result.message || 'Login successful!';
                     messageDiv.style.color = 'green';
-                    // Redirect to dashboard
+                    // Redirect to dashboard after a successful login
                     window.location.href = '/dashboard.html';
                 } else {
-                    messageDiv.textContent = result.message;
+                    messageDiv.textContent = result.message || 'Login failed. Please check your username and password.';
                     messageDiv.style.color = 'red';
                 }
             } catch (error) {
