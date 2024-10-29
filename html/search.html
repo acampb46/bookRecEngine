@@ -57,41 +57,37 @@
                 let query = document.getElementById('bookSearch').value;
                 getConfig().then(apiKey => {
                     fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`)
-                        .then(response => {
-                            if (!response.ok) throw new Error('Failed to fetch from Google Books API');
-                            return response.json();
-                        })
+                        .then(response => response.json())
                         .then(data => {
                             let searchResults = document.getElementById('searchResults');
-                            searchResults.innerHTML = ''; // Clear previous results
+                            searchResults.innerHTML = '';
                             data.items.forEach(item => {
                                 let bookItem = document.createElement('div');
-                                let thumbnail = item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'no-image-available.jpg';
-                                let isbn = item.volumeInfo.industryIdentifiers && item.volumeInfo.industryIdentifiers.length > 0 ?
-                                    item.volumeInfo.industryIdentifiers[0].identifier : 'Unknown';
-
                                 bookItem.innerHTML = `
-                                    <img src="${thumbnail}" alt="Book cover"><br>
-                                    <strong>${item.volumeInfo.title}</strong><br>
-                                    ${item.volumeInfo.description || 'No description available.'}<br>
-                                    <button onclick="addBook(
-    \`${item.volumeInfo.title}\`,
-    \`${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown'}\`,
-    \`${item.volumeInfo.publisher || 'Unknown'}\`,
-    \`${item.volumeInfo.publishedDate || 'Unknown'}\`,
-    \`${item.volumeInfo.description || ''}\`,
-    \`${item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : 'Unknown'}\`,
-    \`${item.volumeInfo.pageCount || 0}\`,
-    \`${item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'Unknown'}\`,
-    ${item.volumeInfo.averageRating || 0},
-    ${item.volumeInfo.ratingsCount || 0},
-    \`${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ''}\`,
-    \`${item.saleInfo.buyLinks ? item.saleInfo.buyLinks[0].url : ''}\`,
-    \`${item.accessInfo.webReaderLink || ''}\`
-)">Add to My Books</button>
-                                    <hr>
-                                `;
+                        <img src="${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'no-image-available.jpg'}" alt="Book cover"><br>
+                        <strong>${item.volumeInfo.title}</strong><br>
+                        ${item.volumeInfo.description || 'No description available.'}<br>
+                        <button class="addBookBtn">Add to My Books</button>
+                        <hr>
+                    `;
                                 searchResults.appendChild(bookItem);
+
+                                // Add the event listener for 'Add to My Books'
+                                bookItem.querySelector('.addBookBtn').addEventListener('click', () => addBook(
+                                    item.volumeInfo.title,
+                                    item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown',
+                                    item.volumeInfo.publisher || 'Unknown',
+                                    item.volumeInfo.publishedDate || 'Unknown',
+                                    item.volumeInfo.description || '',
+                                    item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : 'Unknown',
+                                    item.volumeInfo.pageCount || 0,
+                                    item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'Unknown',
+                                    item.volumeInfo.averageRating || 0,
+                                    item.volumeInfo.ratingsCount || 0,
+                                    item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : '',
+                                    item.saleInfo.buyLinks ? item.saleInfo.buyLinks[0].url : '',
+                                    item.accessInfo.webReaderLink || ''
+                                ));
                             });
                         })
                         .catch(error => {
@@ -99,6 +95,7 @@
                         });
                 });
             };
+
         }
 
         async function getConfig() {
