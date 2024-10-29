@@ -6,39 +6,28 @@
     <link rel="stylesheet" href="/styles.css">
     <title>User Dashboard</title>
     <script>
-        async function loadDashboard() {
-            try {
-                // Check if session is active
-                const sessionResponse = await fetch('https://www.gerardcosc573.com:12348/isLoggedIn', {
-                    method: 'GET',
-                    credentials: 'include'
+        function loadDashboard() {
+            // Fetch the books the user has read from the server
+            fetch('https://www.gerardcosc573.com:12348/userBooks', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch books');
+                    return response.json();
+                })
+                .then(data => {
+                    let booksList = document.getElementById('booksList');
+                    booksList.innerHTML = ''; // Clear previous list
+                    data.books.forEach(book => {
+                        let listItem = document.createElement('li');
+                        listItem.innerText = book.title; // Display book title
+                        booksList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user books:', error);
                 });
-
-                const sessionData = await sessionResponse.json();
-
-                if (!sessionData.loggedIn) throw new Error('No active session');
-
-                // Fetch the books the user has read
-                const response = await fetch('https://www.gerardcosc573.com:12348/userBooks', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch books');
-
-                const data = await response.json();
-                const booksList = document.getElementById('booksList');
-                booksList.innerHTML = ''; // Clear previous list
-
-                data.books.forEach(book => {
-                    let listItem = document.createElement('li');
-                    listItem.innerText = book.title; // Display book title
-                    booksList.appendChild(listItem);
-                });
-            } catch (error) {
-                console.error('Error:', error);
-                window.location.href = 'index.html'; // Redirect if no session
-            }
         }
 
         async function logout() {
