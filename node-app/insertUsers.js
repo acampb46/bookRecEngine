@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const db = require('./db'); // Ensure you have your db connection
+const db = require('db'); // Ensure you have your db connection
 
 const insertUsers = async () => {
     const users = [];
