@@ -7,10 +7,36 @@
     <title>Search for Books</title>
     <script>
         async function addBook(title, author, publisher, publishedDate, description, ISBN, pageCount, categories, averageRating, ratingsCount, imageLink, buyLink, webReaderLink) {
-            // If the publishedDate is just a year, append -01-01 to make it a valid date
+            // Ensure title and author are not empty
+            if (!title || !author) {
+                return;
+            }
+
+            // Format publishedDate to ensure it matches the 'YYYY-MM-DD' format required by MySQL
             if (/^\d{4}$/.test(publishedDate)) {
                 publishedDate = `${publishedDate}-01-01`; // Converts '2003' to '2003-01-01'
+            } else if (/^\d{4}-\d{2}$/.test(publishedDate)) {
+                publishedDate = `${publishedDate}-01`; // Converts '2003-05' to '2003-05-01'
+            } else if (!/^\d{4}-\d{2}-\d{2}$/.test(publishedDate)) {
+                publishedDate = null; // Set to null if format is invalid
             }
+
+            // Validate ISBN format
+            if (ISBN && !/^\d{10}(\d{3})?$/.test(ISBN)) {
+                return;
+            }
+
+            // Validate and sanitize numeric fields
+            pageCount = parseInt(pageCount) || 0;
+            averageRating = parseFloat(averageRating) || 0;
+            ratingsCount = parseInt(ratingsCount) || 0;
+
+            // Limit string lengths for MySQL compatibility
+            title = title.slice(0, 255);
+            author = author.slice(0, 255);
+            publisher = publisher.slice(0, 255);
+            description = description.slice(0, 65535);
+            categories = categories.slice(0, 255);
 
             const bookData = {
                 title,
