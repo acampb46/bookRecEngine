@@ -75,20 +75,20 @@
                                     <strong>${item.volumeInfo.title}</strong><br>
                                     ${item.volumeInfo.description || 'No description available.'}<br>
                                     <button onclick="addBook(
-                                        '${item.volumeInfo.title}',
-                                        '${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown'}',
-                                        '${item.volumeInfo.publisher || 'Unknown'}',
-                                        '${item.volumeInfo.publishedDate || 'Unknown'}',
-                                        '${item.volumeInfo.description || ''}',
-                                        '${isbn}',
-                                        '${item.volumeInfo.pageCount || 0}',
-                                        '${item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'Unknown'}',
-                                        ${item.volumeInfo.averageRating || 0},
-                                        ${item.volumeInfo.ratingsCount || 0},
-                                        '${thumbnail}',
-                                        '${item.saleInfo.buyLinks ? item.saleInfo.buyLinks[0].url : ''}',
-                                        '${item.accessInfo.webReaderLink || ''}'
-                                    )">Add to My Books</button>
+    \`${item.volumeInfo.title}\`,
+    \`${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown'}\`,
+    \`${item.volumeInfo.publisher || 'Unknown'}\`,
+    \`${item.volumeInfo.publishedDate || 'Unknown'}\`,
+    \`${item.volumeInfo.description || ''}\`,
+    \`${item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : 'Unknown'}\`,
+    \`${item.volumeInfo.pageCount || 0}\`,
+    \`${item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'Unknown'}\`,
+    ${item.volumeInfo.averageRating || 0},
+    ${item.volumeInfo.ratingsCount || 0},
+    \`${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ''}\`,
+    \`${item.saleInfo.buyLinks ? item.saleInfo.buyLinks[0].url : ''}\`,
+    \`${item.accessInfo.webReaderLink || ''}\`
+)">Add to My Books</button>
                                     <hr>
                                 `;
                                 searchResults.appendChild(bookItem);
