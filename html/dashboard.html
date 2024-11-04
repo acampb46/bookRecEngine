@@ -24,7 +24,7 @@
 
                         // Create a link for each book title
                         let link = document.createElement('a');
-                        link.href = `review.html?isbn=${encodeURIComponent(book.isbn)}`;
+                        link.href = `review.html?isbn=${book.isbn}`;
                         link.innerText = book.title;
 
                         listItem.appendChild(link);
