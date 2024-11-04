@@ -6,10 +6,10 @@ const db = require('../db');  // Import the database connection
 router.post('/', (req, res) => {
     const { bookTitle, bookIsbn, rating, review } = req.body;
 
-    const query = `INSERT INTO userRatings (username, date, stars, review, book_isbn, book_title)
-                   VALUES (?, NOW(), ?, ?, ?, ?)`;
+    const query = `INSERT INTO userRatings (id, username, date, stars, review, book_isbn, book_title)
+                   VALUES (?, ?, NOW(), ?, ?, ?, ?)`;
 
-    db.query(query, [req.session.user, rating, review, bookIsbn, bookTitle], (err, result) => {
+    db.query(query, [req.session.userId, req.session.username, rating, review, bookIsbn, bookTitle], (err, result) => {
         if (err) throw err;
         res.redirect('/dashboard.html');
     });
