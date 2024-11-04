@@ -4,20 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
-    <title>Submit a Review</title>
+    <title>Book Details</title>
+    <script>
+        let username; // To store the actual username
+
+        async function loadUsername() {
+            const response = await fetch('https://www.gerardcosc573.com:12348/isLoggedIn', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (data.loggedIn) {
+                username = data.username; // Store the username from isLoggedIn
+            } else {
+                alert('Please log in to view this page.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        async function loadBookDetails() {
+            await loadUsername();
+            const urlParams = new URLSearchParams(window.location.search);
+            const isbn = urlParams.get('isbn');
+
+            if (!isbn) {
+                document.getElementById('bookDetails').innerText = "Book not found.";
+                return;
+            }
+
+            // Fetch book info from Google Books API
+            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+            const data = await response.json();
+            const book = data.items ? data.items[0].volumeInfo : null;
+
+            if (book) {
+                document.getElementById('bookTitle').innerText = book.title;
+                document.getElementById('bookAuthor').innerText = `Author: ${book.authors.join(', ')}`;
+                document.getElementById('bookDescription').innerText = book.description;
+            } else {
+                document.getElementById('bookDetails').innerText = "Book details not available.";
+            }
+        }
+
+        async function submitReview(event) {
+            event.preventDefault();
+            const urlParams = new URLSearchParams(window.location.search);
+            const isbn = urlParams.get('isbn');
+            const title = document.getElementById('bookTitle').innerText;
+            const date = new Date().toISOString().split('T')[0];
+            const stars = document.getElementById('stars').value;
+            const review = document.getElementById('review').value;
+
+            const response = await fetch('https://www.gerardcosc573.com:12348/submitReview', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    date,
+                    stars,
+                    review,
+                    book_isbn: isbn,
+                    book_title: title
+                })
+            });
+
+            if (response.ok) {
+                alert('Review submitted successfully!');
+                document.getElementById('reviewForm').reset();
+            } else {
+                alert('Failed to submit review');
+            }
+        }
+
+        window.onload = loadBookDetails;
+    </script>
 </head>
 <body>
-<h1>Submit a Book Review</h1>
+<h1 id="bookTitle">Book Title</h1>
+<p id="bookAuthor">Author</p>
+<p id="bookDescription">Description</p>
 
-<form id="reviewForm" method="POST" action="/submitReview">
-    <label for="bookTitle">Book Title:</label>
-    <input type="text" id="bookTitle" name="bookTitle" required><br>
+<h2>Leave a Review</h2>
+<form id="reviewForm" onsubmit="submitReview(event)">
+    <label for="stars">Rating (1-5):</label>
+    <input type="number" id="stars" name="stars" min="1" max="5" required><br>
 
-    <label for="rating">Rating (out of 5):</label>
-    <input type="number" id="rating" name="rating" min="1" max="5" required><br>
-
-    <label for="review">Review:</label>
-    <textarea id="review" name="review" required></textarea><br>
+    <label for="review">Review:</label><br>
+    <textarea id="review" name="review" rows="4" cols="50" required></textarea><br>
 
     <button type="submit">Submit Review</button>
 </form>

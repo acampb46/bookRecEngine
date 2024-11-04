@@ -21,7 +21,13 @@
                     booksList.innerHTML = ''; // Clear previous list
                     data.books.forEach(book => {
                         let listItem = document.createElement('li');
-                        listItem.innerText = book.title; // Display book title
+
+                        // Create a link for each book title
+                        let link = document.createElement('a');
+                        link.href = `book.html?isbn=${encodeURIComponent(book.isbn)}`;
+                        link.innerText = book.title;
+
+                        listItem.appendChild(link);
                         booksList.appendChild(listItem);
                     });
                 })
