@@ -18,9 +18,17 @@ const options = {
     cert: fs.readFileSync('/etc/ssl/certs/gerardcosc573_chained.pem'),
 };
 
+const allowedOrigins = ['https://gerardcosc573.com', 'https://www.gerardcosc573.com'];
+
 app.use(cors({
-    origin: 'https://www.gerardcosc573.com', //domain
-    credentials: true // Allow credentials (cookies, sessions)
+    credentials: true,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
 }));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json()); // To parse JSON bodies
