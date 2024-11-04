@@ -21,12 +21,11 @@
                     booksList.innerHTML = ''; // Clear previous list
                     data.books.forEach(book => {
                         let listItem = document.createElement('li');
-
-                        // Create a link for each book title
                         let link = document.createElement('a');
-                        link.href = `review.html?isbn=${book.isbn}`;
-                        link.innerText = book.title;
 
+                        // Create a link to review.html with the book's ISBN
+                        link.href = `review.html?isbn=${book.ISBN}`; // Send ISBN in the URL
+                        link.innerText = book.title; // Display book title
                         listItem.appendChild(link);
                         booksList.appendChild(listItem);
                     });
