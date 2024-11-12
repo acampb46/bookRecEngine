@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Books</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .book-list {
+            list-style: none;
+            padding: 0;
+        }
+        .book-item {
+            margin-bottom: 10px;
+        }
+        .book-item a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Recommended Books Based on Your Ratings</h1>
+<ul id="book-list" class="book-list">
+    <!-- Book recommendations will be inserted here dynamically -->
+</ul>
+
+<script>
+    // Function to fetch book recommendations from the server
+    function fetchRecommendations() {
+        fetch('https://www.gerardcosc631.com:12348/recommendations')
+            .then(response => response.json())
+            .then(data => {
+                // Get the book list container
+                const bookList = document.getElementById('book-list');
+
+                // Clear any existing recommendations
+                bookList.innerHTML = '';
+
+                // Loop through the data and create a list item for each recommended book
+                data.recommendations.forEach(book => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('book-item');
+
+                    const bookLink = document.createElement('a');
+                    bookLink.href = `/book/${book.book_isbn}`;  // Link to book detail page
+                    bookLink.textContent = book.book_title;  // Book title
+
+                    listItem.appendChild(bookLink);
+                    bookList.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+            });
+    }
+
+    // Fetch recommendations when the page loads
+    window.onload = fetchRecommendations;
+</script>
+</body>
+</html>

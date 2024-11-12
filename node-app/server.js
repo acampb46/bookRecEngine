@@ -84,6 +84,30 @@ app.post('/logout', (req, res) => {
 });
 
 
+// Recommendation page route
+app.get('/recommendations', (req, res) => {
+    const userId = req.session.userId;  // Assuming you store the logged-in user's ID in the session
+    const k = 5; // You can set the number of nearest neighbors here
+
+    recommendBooks(userId, k, (err, recommendations) => {
+        if (err) {
+            return res.status(500).send("Error generating recommendations.");
+        }
+
+        // Fetch book details (like title, ISBN) for the recommended books
+        const bookQuery = `
+      SELECT book_isbn, book_title
+      FROM userRatings
+      WHERE book_isbn IN (?);
+    `;
+        connection.execute(bookQuery, [recommendations], (err, bookDetails) => {
+            if (err) return res.status(500).send("Error fetching book details.");
+            res.render('recommendations', { recommendations: bookDetails });
+        });
+    });
+});
+
+
 const server = https.createServer(options, app);
 
 server.listen(port, () => {
