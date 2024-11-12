@@ -11,10 +11,10 @@ router.post('/', (req, res) => {
 
     console.log(req.body);
 
-    const query = `INSERT INTO userRatings (id, username, date, stars, review, book_isbn, book_title)
-                   VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)`;
+    const query = `INSERT INTO userRatings (id, stars, review, book_isbn, book_title)
+                   VALUES (?, ?, ?, ?, ?)`;
 
-    db.query(query, [req.session.userId, req.session.username, stars, review, book_isbn, book_title], (err, result) => {
+    db.query(query, [req.session.userId, stars, review, book_isbn, book_title], (err, result) => {
         if (err) throw err;
 
         // Send a JSON response to indicate success
