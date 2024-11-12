@@ -4,7 +4,7 @@ const db = require('../db');  // Import the database connection
 
 // POST route to submit a review
 router.post('/', (req, res) => {
-    if (!req.session || !req.session.user) {
+    if (!req.session.username || !req.session.userId) {
         return res.status(401).json({ error: 'User not logged in' });
     }
     const { bookTitle, bookIsbn, rating, review } = req.body;
