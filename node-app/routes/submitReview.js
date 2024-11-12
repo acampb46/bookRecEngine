@@ -12,11 +12,11 @@ router.post('/', (req, res) => {
     console.log(req.body);
 
     const query = `INSERT INTO userRatings (id, username, date, stars, review, book_isbn, book_title)
-                   VALUES (?, ?, NOW(), ?, ?, ?, ?)`;
+                   VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)`;
 
     db.query(query, [req.session.userId, req.session.username, stars, review, book_isbn, book_title], (err, result) => {
         if (err) throw err;
-        res.redirect('/dashboard.html');
+        res.redirect("https://gerardcosc631.com/dashboard.html")
     });
 });
 
