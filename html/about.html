@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About This Project</title>
+</head>
+<body>
+
+<nav>
+    <ul>
+        <li><a href="/index.html">Register</a></li>
+        <li><a href="/login.html">Login</a></li>
+    </ul>
+</nav>
+
+<h1>About This Project</h1>
+
+<h2>Project Overview</h2>
+<p>This project is a book review and recommendation platform, allowing users to create accounts, review books, and receive personalized book recommendations. It combines user engagement with data-driven recommendation techniques to create a unique user experience.</p>
+
+<h2>Project Goals</h2>
+<ul>
+    <li>Enable users to create accounts and securely log in.</li>
+    <li>Allow users to search for and review books.</li>
+    <li>Implement a recommendation system using collaborative filtering and the K-Nearest Neighbors (KNN) algorithm.</li>
+</ul>
+
+<h2>Development Steps</h2>
+
+<h3>1. Setting Up the Development Environment</h3>
+<p>The project was developed on an Ubuntu server hosted on AWS. We set up Node.js, MySQL, and other necessary packages to manage server-side functionality and the database.</p>
+
+<h3>2. Designing the Database Schema</h3>
+<p>The database was created with tables for storing user information, book details, and user reviews. Key tables include:</p>
+<ul>
+    <li><strong>userData:</strong> Stores user account details.</li>
+    <li><strong>userBooks:</strong> Stores book titles, ISBNs, and metadata.</li>
+    <li><strong>userRatings:</strong> Stores user reviews, ratings, and relevant book information.</li>
+</ul>
+
+<h3>3. Implementing User Authentication</h3>
+<p>User authentication was implemented using sessions to ensure secure access to the platform. This included login, registration, and session management to keep users logged in across requests.</p>
+
+<h3>4. Creating APIs for Book and Review Management</h3>
+<p>RESTful APIs were built using Express.js for handling book data and user reviews. Routes were created for submitting reviews, retrieving book data, and accessing user-specific content.</p>
+
+<h3>5. Developing the Recommendation System</h3>
+<p>The recommendation system utilizes collaborative filtering and the KNN algorithm to suggest books based on user ratings. This process involves:</p>
+<ul>
+    <li>Collecting and analyzing user rating data.</li>
+    <li>Calculating similarity between users to provide relevant book recommendations.</li>
+</ul>
+
+<h3>6. Integrating the Google Books API</h3>
+<p>To enrich book information, the Google Books API was integrated. When users click on book titles, detailed information is retrieved from the API and displayed, including an option to submit reviews.</p>
+
+<h3>7. Designing the Front-End Interface</h3>
+<p>HTML, CSS, and JavaScript were used to create a user-friendly front end. This includes the main pages such as the login page, user dashboard, and review submission page.</p>
+
+<h3>8. Testing and Deployment</h3>
+<p>After development, the project was thoroughly tested to ensure that all features work as expected. Finally, the project was deployed, making it accessible to users online.</p>
+
+<h2>Future Plans</h2>
+<p>We plan to further improve the recommendation algorithm and refine the user interface. Additional features, like social sharing and a more advanced search engine, are also under consideration.</p>
+
+<p>Thank you for exploring our project!</p>
+
+</body>
+</html>

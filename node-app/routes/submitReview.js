@@ -16,7 +16,9 @@ router.post('/', (req, res) => {
 
     db.query(query, [req.session.userId, req.session.username, stars, review, book_isbn, book_title], (err, result) => {
         if (err) throw err;
-        res.redirect("https://gerardcosc631.com/dashboard.html")
+
+        // Send a JSON response to indicate success
+        res.json({ success: true });
     });
 });
 
