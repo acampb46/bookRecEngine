@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Fetch ratings from the userRatings table for the user and other users
 function getUserRatings(userId, callback) {
+    console.log("Fetching ratings for user:", userId);  // Log the userId
     const query = `
     SELECT id, book_isbn, stars
     FROM userRatings
@@ -14,7 +15,11 @@ function getUserRatings(userId, callback) {
     db.query(query, [userId], (err, results) => {
         if (err) return callback(err);
 
-        console.log("Fetched ratings for user:", userId, results); // Debug log
+        console.log("Query results for user ratings:", results);  // Log query results
+        if (results.length === 0) {
+            return callback(new Error("No ratings found for user"));
+        }
+
         callback(null, results);
     });
 }
@@ -93,28 +98,33 @@ function recommendBooks(userId, k, callback) {
 // Define the /recommendations route
 router.get('/', (req, res) => {
     const userId = req.session.userId; // Get the userId from the session
-    const k = 5; // Number of nearest neighbors
+    if (!userId) {
+        console.error("No userId in session"); // Log if no userId
+        return res.status(401).send("User not authenticated");
+    }
 
-    console.log("Generating recommendations for user ID:", userId); // Debug log
+    console.log("Generating recommendations for user ID:", userId); // Log the userId
+
+    const k = 5; // Number of nearest neighbors
 
     recommendBooks(userId, k, (err, recommendations) => {
         if (err) {
-            console.error("Error generating recommendations:", err); // Debug log
+            console.error("Error generating recommendations:", err); // Log error
             return res.status(500).send("Error generating recommendations.");
         }
 
         const bookQuery = `
-            SELECT book_isbn, book_title
-            FROM userRatings
-            WHERE book_isbn IN (?);
+          SELECT book_isbn, book_title
+          FROM userRatings
+          WHERE book_isbn IN (?);
         `;
         db.query(bookQuery, [recommendations], (err, bookDetails) => {
             if (err) {
-                console.error("Error fetching book details:", err); // Debug log
+                console.error("Error fetching book details:", err); // Log error
                 return res.status(500).send("Error fetching book details.");
             }
 
-            console.log("Final book recommendations:", bookDetails); // Debug log
+            console.log("Final book recommendations:", bookDetails); // Log the final book details
             res.json({ recommendations: bookDetails });
         });
     });
