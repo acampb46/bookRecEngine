@@ -51,24 +51,24 @@ function recommendBooks(userId, k, callback) {
 
         console.log("Ratings Matrix:", ratingsMatrix); // Debug log
 
-        // Initialize KNN with the ratingsMatrix and users as labels
+        // Check if ratingsMatrix and users are populated
+        if (ratingsMatrix.length === 0 || users.length === 0) {
+            console.error("Error: ratingsMatrix or users array is empty."); // Debug log
+            return callback(new Error("No ratings or users data found"));
+        }
+
         try {
             const knn = new KNN(ratingsMatrix, users);
             console.log("KNN model initialized successfully."); // Debug log
-        } catch (error) {
-            console.error("Error initializing KNN model:", error); // Debug log
-            return callback(error);
-        }
 
-        // Find target user's index in users array
-        const targetUserIdx = users.indexOf(userId);
-        if (targetUserIdx === -1) {
-            console.error("Target user not found in users list."); // Debug log
-            return callback(new Error("User not found in ratings"));
-        }
+            // Find target user's index in users array
+            const targetUserIdx = users.indexOf(userId);
+            if (targetUserIdx === -1) {
+                console.error("Target user not found in users list."); // Debug log
+                return callback(new Error("User not found in ratings"));
+            }
 
-        // Predict K nearest neighbors
-        try {
+            // Predict K nearest neighbors
             const neighbors = knn.predict([ratingsMatrix[targetUserIdx]], k);
             console.log("KNN neighbors for user:", neighbors); // Debug log
 
@@ -104,9 +104,9 @@ router.get('/', (req, res) => {
         }
 
         const bookQuery = `
-          SELECT book_isbn, book_title
-          FROM userRatings
-          WHERE book_isbn IN (?);
+            SELECT book_isbn, book_title
+            FROM userRatings
+            WHERE book_isbn IN (?);
         `;
         db.query(bookQuery, [recommendations], (err, bookDetails) => {
             if (err) {
