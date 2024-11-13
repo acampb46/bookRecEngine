@@ -101,10 +101,17 @@ async function generateRecommendations(userId, k) {
         console.log(`Finding high-rated books for similar user ${similarUser.userId}`);
         const otherUserRatings = ratingsForBooks.filter(r => r.id === similarUser.userId);
 
+        // Log the books rated by the similar user
+        const booksRatedBySimilarUser = otherUserRatings.map(r => r.book_isbn);
+        console.log(`Books rated by similar user ${similarUser.userId}:`, booksRatedBySimilarUser);
+
         // Get books rated by the similar user that the current user hasn't rated and are highly rated
         const highRatedBooks = otherUserRatings.filter(rating =>
             !userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4
         );
+
+        // Log high-rated books that will be considered for recommendation
+        console.log(`High-rated books for similar user ${similarUser.userId}:`, highRatedBooks);
 
         // Sort high-rated books by stars (descending) to recommend the highest-rated ones
         highRatedBooks.sort((a, b) => b.stars - a.stars);
