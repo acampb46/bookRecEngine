@@ -117,7 +117,6 @@ async function generateRecommendations(userId, k) {
     return topRecommendedBooks;
 }
 
-
 router.get('/', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
@@ -150,7 +149,7 @@ router.get('/', async (req, res) => {
         console.log("Executing SQL Query:", bookQuery);
 
         // Execute the query to get the book details for the recommended ISBNs
-        const [bookDetails] = await db.query(bookQuery, [recommendations]);
+        const [bookDetails] = await db.query(bookQuery, recommendations);
 
         // Log the retrieved book details
         console.log("Book Details:", bookDetails);
