@@ -118,7 +118,6 @@ async function generateRecommendations(userId, k) {
 }
 
 
-// Define the /recommendations route
 router.get('/', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
@@ -127,20 +126,38 @@ router.get('/', async (req, res) => {
 
     const k = 5; // Number of similar users to consider
     try {
-        let recommendations = await generateRecommendations(userId, k);
+        // Generate recommendations by getting ISBNs of recommended books
+        const recommendations = await generateRecommendations(userId, k);
 
         if (recommendations.length === 0) {
             return res.status(404).send("No recommendations found.");
         }
 
+        // Debugging: Log the recommendations
+        console.log("Recommendations ISBNs:", recommendations);
+
+        // Query the book details using the ISBNs of the recommended books
         const bookQuery = `
             SELECT book_isbn, book_title
             FROM userRatings
             WHERE book_isbn IN (?);
         `;
 
+        // Log the SQL query for debugging
+        console.log("Executing SQL Query:", bookQuery);
+
+        // Execute the query to get the book details for the recommended ISBNs
         const [bookDetails] = await db.query(bookQuery, [recommendations]);
 
+        // Log the retrieved book details
+        console.log("Book Details:", bookDetails);
+
+        // If bookDetails is empty, check the ISBNs and verify their presence in the books table
+        if (bookDetails.length === 0) {
+            return res.status(404).send("No books found for the recommended ISBNs.");
+        }
+
+        // Return the recommendations with book details
         res.json({ recommendations: bookDetails });
     } catch (error) {
         console.error("Error generating recommendations:", error);
