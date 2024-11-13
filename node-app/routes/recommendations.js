@@ -1,137 +1,108 @@
 const express = require('express');
 const KNN = require('ml-knn');
 const db = require('../db');
+const cosineSimilarity = require('cosine-similarity'); // for calculating similarity
 
 const router = express.Router();
 
 // Fetch ratings from the userRatings table for a specific user
 async function getUserRatings(userId) {
-    console.log("Fetching ratings for user:", userId);
     const query = `
         SELECT id, book_isbn, stars
         FROM userRatings
-        WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
+        WHERE id = ?;
     `;
     try {
-        // Use db.query directly because it's already promise-based
         const [results] = await db.query(query, [userId]);
-        console.log("Query results for user ratings:", results);
         if (results.length === 0) throw new Error("No ratings found for user");
-
         return results;
     } catch (error) {
-        console.error("Error fetching user ratings:", error);
         throw error;
     }
 }
 
-// Function to build ratings matrix and train KNN
-function trainKNN(ratings) {
-    const users = [];
-    const books = [];
-    const ratingsMatrix = [];
-
-    console.log("Ratings data:", ratings);  // Log the ratings data
-
-    ratings.forEach(row => {
-        let userIdx = users.indexOf(row.id);
-        let bookIdx = books.indexOf(row.book_isbn);
-
-        if (userIdx === -1) {
-            userIdx = users.length;
-            users.push(row.id);
-        }
-        if (bookIdx === -1) {
-            bookIdx = books.length;
-            books.push(row.book_isbn);
-        }
-
-        if (!ratingsMatrix[userIdx]) ratingsMatrix[userIdx] = Array(books.length).fill(0);
-        ratingsMatrix[userIdx][bookIdx] = row.stars;
-    });
-
-    console.log("Users:", users);
-    console.log("Books:", books);
-    console.log("Ratings Matrix:", ratingsMatrix);
-
-    if (ratingsMatrix.length === 0 || ratingsMatrix.some(row => row.length === 0)) {
-        console.error("Error: ratingsMatrix is empty or malformed.");
-        throw new Error("Insufficient data for recommendations.");
+// Fetch all ratings for books that the user has rated
+async function getRatingsForBooksRatedByUser(userId) {
+    const query = `
+        SELECT id, book_isbn, stars
+        FROM userRatings
+        WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?);
+    `;
+    try {
+        const [results] = await db.query(query, [userId]);
+        return results;
+    } catch (error) {
+        throw error;
     }
-
-    // Train KNN on the ratings matrix
-    const knn = new KNN();
-    knn.train(ratingsMatrix, users);
-    return { knn, users, books };
 }
 
-function generateRecommendations(ratings, userId, k) {
-    const users = [];
-    const books = [];
-    const ratingsMatrix = [];
+// Function to calculate cosine similarity between two users' ratings
+function calculateSimilarity(userRatings, otherUserRatings, ratedBooks) {
+    const userVector = [];
+    const otherUserVector = [];
 
-    ratings.forEach(row => {
-        let userIdx = users.indexOf(row.id);
-        let bookIdx = books.indexOf(row.book_isbn);
-
-        if (userIdx === -1) {
-            userIdx = users.length;
-            users.push(row.id);
-        }
-        if (bookIdx === -1) {
-            bookIdx = books.length;
-            books.push(row.book_isbn);
-        }
-
-        if (!ratingsMatrix[userIdx]) ratingsMatrix[userIdx] = Array(books.length).fill(0);
-        ratingsMatrix[userIdx][bookIdx] = row.stars;
+    // Build rating vectors for the user and the other user
+    ratedBooks.forEach(book => {
+        const userRating = userRatings.find(r => r.book_isbn === book);
+        const otherUserRating = otherUserRatings.find(r => r.book_isbn === book);
+        userVector.push(userRating ? userRating.stars : 0);  // Add 0 if no rating
+        otherUserVector.push(otherUserRating ? otherUserRating.stars : 0);
     });
 
-    const targetUserIdx = users.indexOf(userId);
-    const targetUserRatings = ratingsMatrix[targetUserIdx];
+    // Calculate cosine similarity between the two rating vectors
+    return cosineSimilarity(userVector, otherUserVector);
+}
 
-    // Filter out books the target user hasn't rated
-    const ratedBooksIndices = targetUserRatings.map((rating, idx) => rating > 0 ? idx : -1).filter(idx => idx !== -1);
+// Function to generate recommendations
+async function generateRecommendations(userId, k) {
+    // Fetch the user's ratings and the ratings of others who rated the same books
+    const userRatings = await getUserRatings(userId);
+    const ratingsForBooks = await getRatingsForBooksRatedByUser(userId);
 
-    // Only use books the target user has rated
-    const knn = new KNN(ratingsMatrix.map(row => ratedBooksIndices.map(idx => row[idx])));
+    const ratedBooks = [...new Set(userRatings.map(r => r.book_isbn))]; // Get unique books rated by the user
+    const similarUsers = [];
 
-    const neighbors = knn.kNeighbors(ratingsMatrix[targetUserIdx], { k });
+    ratingsForBooks.forEach(rating => {
+        if (rating.id !== userId) { // Don't compare with the same user
+            const otherUserRatings = ratingsForBooks.filter(r => r.id === rating.id);
+            const similarity = calculateSimilarity(userRatings, otherUserRatings, ratedBooks);
 
-    const recommendations = new Set();
-    neighbors.forEach(neighborIdx => {
-        ratings.forEach(row => {
-            if (row.id === users[neighborIdx] && row.id !== userId) {
-                if (!ratings.some(r => r.book_isbn === row.book_isbn && r.id === userId)) {
-                    recommendations.add(row.book_isbn);
-                }
+            // Push the similarity score and the user ID into the array
+            similarUsers.push({ userId: rating.id, similarity });
+        }
+    });
+
+    // Sort similar users by similarity in descending order
+    similarUsers.sort((a, b) => b.similarity - a.similarity);
+
+    // Get top k similar users
+    const topSimilarUsers = similarUsers.slice(0, k);
+
+    // Now, we need to find the books rated highly by similar users that the current user has not rated
+    const recommendedBooks = new Set();
+    topSimilarUsers.forEach(similarUser => {
+        const otherUserRatings = ratingsForBooks.filter(r => r.id === similarUser.userId);
+        otherUserRatings.forEach(rating => {
+            // Recommend the book if the user hasn't rated it yet and if the rating is high
+            if (!userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4) {
+                recommendedBooks.add(rating.book_isbn);
             }
         });
     });
 
-    return Array.from(recommendations);
+    return Array.from(recommendedBooks);
 }
 
 // Define the /recommendations route
 router.get('/', async (req, res) => {
     const userId = req.session.userId;
     if (!userId) {
-        console.error("No userId in session");
         return res.status(401).send("User not authenticated");
     }
 
-    console.log("Generating recommendations for user ID:", userId);
-    const k = 5;
-
+    const k = 5; // Number of similar users to consider
     try {
-        // Get user ratings
-        const ratings = await getUserRatings(userId);
-
-        // Train the KNN model using ratings data
-        const { knn, users, books } = trainKNN(ratings);
-
-        // Generate recommendations based on KNN
-        const recommendations = generateRecommendations(ratings, userId, knn, users, books, k);
+        const recommendations = await generateRecommendations(userId, k);
 
         if (recommendations.length === 0) {
             return res.status(404).send("No recommendations found.");
@@ -143,12 +114,8 @@ router.get('/', async (req, res) => {
             WHERE book_isbn IN (?);
         `;
 
-        console.log("Executing SQL query for book details:", bookQuery, recommendations);
-
-        // Use db.query to fetch book details, passing recommendations as parameter
         const [bookDetails] = await db.query(bookQuery, [recommendations]);
 
-        console.log("Book details fetched:", bookDetails);
         res.json({ recommendations: bookDetails });
     } catch (error) {
         console.error("Error generating recommendations:", error);
