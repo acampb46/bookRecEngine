@@ -11,7 +11,7 @@ function getUserRatings(userId, callback) {
     FROM userRatings
     WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
   `;
-    db.execute(query, [userId], (err, results) => {
+    db.query(query, [userId], (err, results) => {
         if (err) return callback(err);
         callback(null, results);
     });
