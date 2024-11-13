@@ -10,24 +10,35 @@ router.post('/', async (req, res) => {
 
     // Validate input
     if (!username || !password) {
+        console.error("Username or password is missing.");
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
     try {
         // Check if the user exists
         const query = 'SELECT * FROM userData WHERE username = ?';
-        const result = await db.query(query, [username]); // Destructure results here
+        const [rows] = await db.query(query, [username]);
 
-        // User not found
-        if (result.length === 0) {
+        // Check if any user was returned
+        if (rows.length === 0) {
+            console.error("User not found with username:", username);
             return res.status(400).json({ message: 'Invalid username or password' });
         }
 
-        const user = result[0];
+        const user = rows[0]; // Access the first row
+        console.log("User found:", user); // Debug log for user info
+
+        // Check if the password from request matches the hashed password in the DB
+        if (!user.password) {
+            console.error("No password found for user:", user.username);
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
 
         // Check password
         const match = await bcrypt.compare(password, user.password);
+
         if (!match) {
+            console.error("Password mismatch for user:", username);
             return res.status(400).json({ message: 'Invalid username or password' });
         }
 
