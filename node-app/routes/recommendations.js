@@ -7,10 +7,10 @@ const router = express.Router();
 // Fetch ratings from the userRatings table for the user and other users
 function getUserRatings(userId, callback) {
     const query = `
-    SELECT id, book_isbn, stars
-    FROM userRatings
-    WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
-  `;
+        SELECT id, book_isbn, stars
+        FROM userRatings
+        WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
+    `;
     db.query(query, [userId], (err, results) => {
         if (err) return callback(err);
         callback(null, results);
@@ -26,28 +26,33 @@ function recommendBooks(userId, k, callback) {
         const books = [];
         const ratingsMatrix = [];
 
+        // Populate users, books arrays and build a sparse matrix
+        ratings.forEach(row => {
+            if (!users.includes(row.id)) users.push(row.id);
+            if (!books.includes(row.book_isbn)) books.push(row.book_isbn);
+        });
+
+        // Initialize ratingsMatrix with zeros
+        for (let i = 0; i < users.length; i++) {
+            ratingsMatrix[i] = Array(books.length).fill(0);
+        }
+
+        // Fill ratingsMatrix with actual ratings
         ratings.forEach(row => {
             const userIdx = users.indexOf(row.id);
             const bookIdx = books.indexOf(row.book_isbn);
-
-            if (userIdx === -1) {
-                users.push(row.id);
-            }
-            if (bookIdx === -1) {
-                books.push(row.book_isbn);
-            }
-
-            if (!ratingsMatrix[bookIdx]) {
-                ratingsMatrix[bookIdx] = [];
-            }
-            ratingsMatrix[bookIdx][userIdx] = row.stars;
+            ratingsMatrix[userIdx][bookIdx] = row.stars;
         });
 
-        const knn = new KNN();
-        knn.train(ratingsMatrix);
+        const knn = new KNN(ratingsMatrix, users); // Use users as labels
 
         const targetUserIdx = users.indexOf(userId);
-        const neighbors = knn.predict([ratingsMatrix[targetUserIdx]]);
+        if (targetUserIdx === -1) {
+            return callback(new Error("User not found in ratings"));
+        }
+
+        // Find k nearest neighbors for the target user
+        const neighbors = knn.predict([ratingsMatrix[targetUserIdx]], k);
 
         const recommendations = [];
         neighbors.forEach(neighborIdx => {
@@ -77,7 +82,7 @@ router.get('/', (req, res) => {
           FROM userRatings
           WHERE book_isbn IN (?);
         `;
-        db.execute(bookQuery, [recommendations], (err, bookDetails) => {
+        db.query(bookQuery, [recommendations], (err, bookDetails) => {
             if (err) return res.status(500).send("Error fetching book details.");
             res.json({ recommendations: bookDetails });
         });
