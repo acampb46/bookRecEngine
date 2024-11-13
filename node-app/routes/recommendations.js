@@ -136,11 +136,14 @@ router.get('/', async (req, res) => {
         // Debugging: Log the recommendations
         console.log("Recommendations ISBNs:", recommendations);
 
+        // Create a string with the appropriate number of `?` placeholders
+        const placeholders = recommendations.map(() => '?').join(', ');
+
         // Query the book details using the ISBNs of the recommended books
         const bookQuery = `
             SELECT isbn13, title
             FROM books
-            WHERE isbn13 IN (?);
+            WHERE isbn13 IN (${placeholders});
         `;
 
         // Log the SQL query for debugging
