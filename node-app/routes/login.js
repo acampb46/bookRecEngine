@@ -13,13 +13,10 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    // Check if the user exists
-    const query = 'SELECT * FROM userData WHERE username = ?';
-    db.query(query, [username], async (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Server error' });
-        }
+    try {
+        // Check if the user exists
+        const query = 'SELECT * FROM userData WHERE username = ?';
+        const [result] = await db.query(query, [username]);
 
         // User not found
         if (result.length === 0) {
@@ -39,7 +36,10 @@ router.post('/', async (req, res) => {
         req.session.username = user.username; // Store username in session
 
         res.status(200).json({ message: 'Login successful', success: true });
-    });
+    } catch (err) {
+        console.error("Server error:", err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

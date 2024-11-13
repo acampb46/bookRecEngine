@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 // MySQL connection
 const pool = mysql.createPool({
@@ -7,7 +7,7 @@ const pool = mysql.createPool({
     user: 'COSC573',
     password: 'COSC573',
     database: 'bookRecEngine'
-});
+}).promise();
 
 // Export a function to execute queries using the pool
 module.exports = {
