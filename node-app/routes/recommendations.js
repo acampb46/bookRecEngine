@@ -65,21 +65,43 @@ function trainKNN(ratings) {
     return { knn, users, books };
 }
 
-// Function to generate recommendations based on KNN
-function generateRecommendations(ratings, userId, knn, users, books, k) {
-    const targetUserIdx = users.indexOf(userId);
-    if (targetUserIdx === -1) {
-        throw new Error("User not found in the ratings data");
-    }
+function generateRecommendations(ratings, userId, k) {
+    const users = [];
+    const books = [];
+    const ratingsMatrix = [];
 
-    // Get nearest neighbors based on KNN model
-    const neighbors = knn.kNeighbors(ratings[targetUserIdx], { k });
+    ratings.forEach(row => {
+        let userIdx = users.indexOf(row.id);
+        let bookIdx = books.indexOf(row.book_isbn);
+
+        if (userIdx === -1) {
+            userIdx = users.length;
+            users.push(row.id);
+        }
+        if (bookIdx === -1) {
+            bookIdx = books.length;
+            books.push(row.book_isbn);
+        }
+
+        if (!ratingsMatrix[userIdx]) ratingsMatrix[userIdx] = Array(books.length).fill(0);
+        ratingsMatrix[userIdx][bookIdx] = row.stars;
+    });
+
+    const targetUserIdx = users.indexOf(userId);
+    const targetUserRatings = ratingsMatrix[targetUserIdx];
+
+    // Filter out books the target user hasn't rated
+    const ratedBooksIndices = targetUserRatings.map((rating, idx) => rating > 0 ? idx : -1).filter(idx => idx !== -1);
+
+    // Only use books the target user has rated
+    const knn = new KNN(ratingsMatrix.map(row => ratedBooksIndices.map(idx => row[idx])));
+
+    const neighbors = knn.kNeighbors(ratingsMatrix[targetUserIdx], { k });
 
     const recommendations = new Set();
     neighbors.forEach(neighborIdx => {
         ratings.forEach(row => {
             if (row.id === users[neighborIdx] && row.id !== userId) {
-                // Check if the user has already rated the book
                 if (!ratings.some(r => r.book_isbn === row.book_isbn && r.id === userId)) {
                     recommendations.add(row.book_isbn);
                 }
@@ -87,7 +109,6 @@ function generateRecommendations(ratings, userId, knn, users, books, k) {
         });
     });
 
-    console.log("Recommendations for user:", Array.from(recommendations));
     return Array.from(recommendations);
 }
 
