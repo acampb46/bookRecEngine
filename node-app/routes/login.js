@@ -16,14 +16,14 @@ router.post('/', async (req, res) => {
     try {
         // Check if the user exists
         const query = 'SELECT * FROM userData WHERE username = ?';
-        const [result] = await db.query(query, [username]);
+        const [rows] = await db.query(query, [username]); // Destructure results here
 
         // User not found
-        if (result.length === 0) {
+        if (rows.length === 0) {
             return res.status(400).json({ message: 'Invalid username or password' });
         }
 
-        const user = result[0];
+        const user = rows[0];
 
         // Check password
         const match = await bcrypt.compare(password, user.password);
