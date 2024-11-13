@@ -31,6 +31,8 @@ function generateRecommendations(ratings, userId, k) {
     const books = [];
     const ratingsMatrix = [];
 
+    console.log("Ratings data:", ratings);  // Log the ratings data
+
     ratings.forEach(row => {
         let userIdx = users.indexOf(row.id);
         let bookIdx = books.indexOf(row.book_isbn);
@@ -47,6 +49,10 @@ function generateRecommendations(ratings, userId, k) {
         if (!ratingsMatrix[userIdx]) ratingsMatrix[userIdx] = Array(books.length).fill(0);
         ratingsMatrix[userIdx][bookIdx] = row.stars;
     });
+
+    console.log("Users:", users);
+    console.log("Books:", books);
+    console.log("Ratings Matrix:", ratingsMatrix);
 
     if (ratingsMatrix.length === 0 || ratingsMatrix.some(row => row.length === 0)) {
         console.error("Error: ratingsMatrix is empty or malformed.");
