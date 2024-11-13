@@ -1,6 +1,8 @@
-const mysql = require('mysql2');
+const express = require('express');
 const KNN = require('ml-knn');
 const db = require('../db');
+
+const router = express.Router();
 
 // Fetch ratings from the userRatings table for the user and other users
 function getUserRatings(userId, callback) {
@@ -20,7 +22,6 @@ function recommendBooks(userId, k, callback) {
     getUserRatings(userId, (err, ratings) => {
         if (err) return callback(err);
 
-        // Prepare data for KNN: create a matrix of user ratings for each book
         const users = [];
         const books = [];
         const ratingsMatrix = [];
@@ -36,25 +37,20 @@ function recommendBooks(userId, k, callback) {
                 books.push(row.book_isbn);
             }
 
-            // Populate ratings matrix
             if (!ratingsMatrix[bookIdx]) {
                 ratingsMatrix[bookIdx] = [];
             }
             ratingsMatrix[bookIdx][userIdx] = row.stars;
         });
 
-        // Create KNN model and fit it
         const knn = new KNN();
         knn.train(ratingsMatrix);
 
-        // Find the nearest neighbors (similar users) for the target user
         const targetUserIdx = users.indexOf(userId);
         const neighbors = knn.predict([ratingsMatrix[targetUserIdx]]);
 
-        // Use the K nearest neighbors to find books to recommend
         const recommendations = [];
         neighbors.forEach(neighborIdx => {
-            // For each similar user, recommend books they have liked but the target user has not rated
             ratings.forEach(row => {
                 if (row.id === users[neighborIdx] && !recommendations.includes(row.book_isbn)) {
                     recommendations.push(row.book_isbn);
@@ -65,3 +61,27 @@ function recommendBooks(userId, k, callback) {
         callback(null, recommendations);
     });
 }
+
+// Define the /recommendations route
+router.get('/', (req, res) => {
+    const userId = req.session.userId; // Get the userId from the session
+    const k = 5; // Number of nearest neighbors
+
+    recommendBooks(userId, k, (err, recommendations) => {
+        if (err) {
+            return res.status(500).send("Error generating recommendations.");
+        }
+
+        const bookQuery = `
+          SELECT book_isbn, book_title
+          FROM userRatings
+          WHERE book_isbn IN (?);
+        `;
+        db.execute(bookQuery, [recommendations], (err, bookDetails) => {
+            if (err) return res.status(500).send("Error fetching book details.");
+            res.json({ recommendations: bookDetails });
+        });
+    });
+});
+
+module.exports = router;

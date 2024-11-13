@@ -46,6 +46,7 @@ const userBooksRoute = require('./routes/userBooks');
 const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login')
 const isLoggedInRoute = require('./routes/isLoggedIn');
+const recommendationsRoute = require('./routes/recommendations');
 
 // Use routes
 app.use('/submitReview', submitReviewRoute);
@@ -54,6 +55,7 @@ app.use('/userBooks', userBooksRoute);
 app.use('/register', registerRoute);
 app.use('/login', loginRoute);
 app.use('/isLoggedIn', isLoggedInRoute);
+app.use('/recommendations', recommendationsRoute);
 
 // Route to pass environment variables to the client
 app.get('/config', (req, res) => {
@@ -80,30 +82,6 @@ app.post('/logout', (req, res) => {
         }
         res.clearCookie('connect.sid'); // Clear session cookie
         res.status(200).send('Logged out');
-    });
-});
-
-const recommendBooks = require('./routes/recommendations');
-// Recommendation page route
-app.get('/recommendations', (req, res) => {
-    const userId = req.session.userId;  // Assuming you store the logged-in user's ID in the session
-    const k = 5; // You can set the number of nearest neighbors here
-
-    recommendBooks(userId, k, (err, recommendations) => {
-        if (err) {
-            return res.status(500).send("Error generating recommendations.");
-        }
-
-        // Fetch book details (like title, ISBN) for the recommended books
-        const bookQuery = `
-      SELECT book_isbn, book_title
-      FROM userRatings
-      WHERE book_isbn IN (?);
-    `;
-        connection.execute(bookQuery, [recommendations], (err, bookDetails) => {
-            if (err) return res.status(500).send("Error fetching book details.");
-            res.render('recommendations', { recommendations: bookDetails });
-        });
     });
 });
 
