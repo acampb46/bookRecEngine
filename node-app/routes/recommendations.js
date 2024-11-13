@@ -95,19 +95,28 @@ async function generateRecommendations(userId, k) {
     console.log(`Top ${k} similar users:`, topSimilarUsers);
 
     // Now, we need to find the books rated highly by similar users that the current user has not rated
-    const recommendedBooks = new Set();
-    topSimilarUsers.forEach(similarUser => {
-        const otherUserRatings = ratingsForBooks.filter(r => r.id === similarUser.userId);
-        otherUserRatings.forEach(rating => {
-            // Recommend the book if the user hasn't rated it yet and if the rating is high
-            if (!userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4) {
-                console.log(`Recommending book with ISBN: ${rating.book_isbn} rated by user ${similarUser.userId}`);
-                recommendedBooks.add(rating.book_isbn);
-            }
-        });
-    });
+    const recommendedBooks = [];
 
-    return Array.from(recommendedBooks);
+    for (const similarUser of topSimilarUsers) {
+        console.log(`Finding high-rated books for similar user ${similarUser.userId}`);
+        const otherUserRatings = ratingsForBooks.filter(r => r.id === similarUser.userId);
+
+        // Get books rated by the similar user that the current user hasn't rated and are highly rated
+        const highRatedBooks = otherUserRatings.filter(rating =>
+            !userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4
+        );
+
+        // Sort high-rated books by stars (descending) to recommend the highest-rated ones
+        highRatedBooks.sort((a, b) => b.stars - a.stars);
+
+        // Add the highest-rated book that the user hasn't rated yet
+        if (highRatedBooks.length > 0) {
+            console.log(`Recommending book with ISBN: ${highRatedBooks[0].book_isbn} (Rating: ${highRatedBooks[0].stars})`);
+            recommendedBooks.push(highRatedBooks[0]);
+        }
+    }
+
+    return recommendedBooks;
 }
 
 // Define the /recommendations route
@@ -135,9 +144,9 @@ router.get('/', async (req, res) => {
             FROM userRatings
             WHERE book_isbn IN (?);
         `;
-        console.log("Executing SQL query for book details:", bookQuery, recommendations);
+        console.log("Executing SQL query for book details:", bookQuery, recommendations.map(r => r.book_isbn));
 
-        const [bookDetails] = await db.query(bookQuery, [recommendations]);
+        const [bookDetails] = await db.query(bookQuery, [recommendations.map(r => r.book_isbn)]);
 
         console.log("Book details fetched:", bookDetails);
         res.json({ recommendations: bookDetails });
