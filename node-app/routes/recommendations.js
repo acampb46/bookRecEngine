@@ -52,10 +52,15 @@ function recommendBooks(userId, k, callback) {
             ratingsMatrix[userIdx][bookIdx] = row.stars;
         });
 
+        if (ratingsMatrix.length === 0 || ratingsMatrix.some(row => row.length === 0)) {
+            console.error("Error: ratingsMatrix is empty or malformed.");
+            return callback(new Error("Insufficient data for recommendations."));
+        }
+
         const knn = new KNN(ratingsMatrix);
         const targetUserIdx = users.indexOf(userId);
 
-        const neighbors = knn.kNeighbors(ratingsMatrix[targetUserIdx], { k });
+        const neighbors = knn.kNeighbors(ratingsMatrix[targetUserIdx], {k});
         console.log("KNN neighbors for user:", neighbors);
 
         const recommendations = new Set();
@@ -112,7 +117,7 @@ router.get('/', (req, res) => {
             }
 
             console.log('Book details fetched:', bookDetails);
-            res.json({ recommendations: bookDetails });
+            res.json({recommendations: bookDetails});
         });
     });
 });
