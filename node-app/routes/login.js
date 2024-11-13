@@ -16,10 +16,10 @@ router.post('/', async (req, res) => {
     try {
         // Check if the user exists
         const query = 'SELECT * FROM userData WHERE username = ?';
-        const [rows] = await db.query(query, [username]); // Destructure results here
+        const result = await db.query(query, [username]); // Destructure results here
 
         // User not found
-        if (rows.length === 0) {
+        if (result.length === 0) {
             return res.status(400).json({ message: 'Invalid username or password' });
         }
 
