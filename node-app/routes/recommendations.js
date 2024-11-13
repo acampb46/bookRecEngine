@@ -33,65 +33,47 @@ function recommendBooks(userId, k, callback) {
         const books = [];
         const ratingsMatrix = [];
 
-        // Populate users and books arrays
-        ratings.forEach(row => {
-            if (!users.includes(row.id)) users.push(row.id);
-            if (!books.includes(row.book_isbn)) books.push(row.book_isbn);
-        });
-
-        console.log("Users list:", users); // Debug log
-        console.log("Books list:", books); // Debug log
-
-        // Initialize ratingsMatrix with zeros
-        for (let i = 0; i < users.length; i++) {
-            ratingsMatrix[i] = Array(books.length).fill(0);
-        }
-
-        // Fill ratingsMatrix with actual ratings
         ratings.forEach(row => {
             const userIdx = users.indexOf(row.id);
             const bookIdx = books.indexOf(row.book_isbn);
-            ratingsMatrix[userIdx][bookIdx] = row.stars;
-        });
 
-        console.log("Ratings Matrix:", ratingsMatrix); // Debug log
-
-        // Check if ratingsMatrix and users are populated
-        if (ratingsMatrix.length === 0 || users.length === 0) {
-            console.error("Error: ratingsMatrix or users array is empty."); // Debug log
-            return callback(new Error("No ratings or users data found"));
-        }
-
-        try {
-            const knn = new KNN(ratingsMatrix, users);
-            console.log("KNN model initialized successfully."); // Debug log
-
-            // Find target user's index in users array
-            const targetUserIdx = users.indexOf(userId);
-            if (targetUserIdx === -1) {
-                console.error("Target user not found in users list."); // Debug log
-                return callback(new Error("User not found in ratings"));
+            if (userIdx === -1) {
+                users.push(row.id);
+            }
+            if (bookIdx === -1) {
+                books.push(row.book_isbn);
             }
 
-            // Predict K nearest neighbors
-            const neighbors = knn.predict([ratingsMatrix[targetUserIdx]], k);
-            console.log("KNN neighbors for user:", neighbors); // Debug log
+            if (!ratingsMatrix[bookIdx]) {
+                ratingsMatrix[bookIdx] = [];
+            }
+            ratingsMatrix[bookIdx][userIdx] = row.stars;
+        });
 
-            const recommendations = [];
-            neighbors.forEach(neighborIdx => {
-                ratings.forEach(row => {
-                    if (row.id === users[neighborIdx] && !recommendations.includes(row.book_isbn)) {
+        const knn = new KNN();
+        knn.train(ratingsMatrix);
+
+        const targetUserIdx = users.indexOf(userId);
+        const neighbors = knn.predict([ratingsMatrix[targetUserIdx]]);
+        console.log("KNN neighbors for user:", neighbors);
+
+        // Fetch the ratings of the neighbor(s)
+        const recommendations = [];
+        neighbors.forEach(neighborIdx => {
+            console.log(`Checking ratings for neighbor ${users[neighborIdx]}...`);
+            ratings.forEach(row => {
+                if (row.id === users[neighborIdx] && !recommendations.includes(row.book_isbn)) {
+                    console.log(`Neighbor ${users[neighborIdx]} has rated ${row.book_isbn} with ${row.stars}`);
+                    // Only recommend books the target user hasn't rated
+                    if (!ratings.some(r => r.book_isbn === row.book_isbn && r.id === userId)) {
                         recommendations.push(row.book_isbn);
                     }
-                });
+                }
             });
+        });
 
-            console.log("Recommendations for user:", recommendations); // Debug log
-            callback(null, recommendations);
-        } catch (error) {
-            console.error("Error in KNN prediction:", error); // Debug log
-            return callback(error);
-        }
+        console.log("Recommendations for user:", recommendations);
+        callback(null, recommendations);
     });
 }
 
