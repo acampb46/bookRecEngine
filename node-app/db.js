@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2'); // Make sure you are using mysql2
 
 // MySQL connection
 const pool = mysql.createPool({
@@ -7,30 +7,14 @@ const pool = mysql.createPool({
     user: 'COSC573',
     password: 'COSC573',
     database: 'bookRecEngine'
-}).promise();
+});
 
-// Export a function to execute queries using the pool
+// Create a promise-based connection pool
+const promisePool = pool.promise(); // Use promise-based pool
+
+// Export a function to execute queries using the promise pool
 module.exports = {
-    query: (queryText, queryParams, callback) => {
-        pool.getConnection((err, connection) => {
-            if (err) {
-                // If there's an error getting the connection, pass it to the callback
-                return callback(err);
-            }
-
-            // Execute the query
-            connection.query(queryText, queryParams, (queryErr, results) => {
-                // Release the connection back to the pool
-                connection.release();
-
-                // If there's an error with the query, pass it to the callback
-                if (queryErr) {
-                    return callback(queryErr);
-                }
-
-                // Otherwise, pass the results to the callback
-                return callback(null, results);
-            });
-        });
+    query: (queryText, queryParams) => {
+        return promisePool.execute(queryText, queryParams); // Returns a promise
     }
 };
