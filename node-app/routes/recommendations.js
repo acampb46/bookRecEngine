@@ -127,7 +127,7 @@ router.get('/', async (req, res) => {
 
     const k = 5; // Number of similar users to consider
     try {
-        const recommendations = await generateRecommendations(userId, k);
+        let recommendations = await generateRecommendations(userId, k);
 
         if (recommendations.length === 0) {
             return res.status(404).send("No recommendations found.");
