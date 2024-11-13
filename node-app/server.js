@@ -83,7 +83,7 @@ app.post('/logout', (req, res) => {
     });
 });
 
-
+const recommendBooks = require('./routes/recommendations');
 // Recommendation page route
 app.get('/recommendations', (req, res) => {
     const userId = req.session.userId;  // Assuming you store the logged-in user's ID in the session
