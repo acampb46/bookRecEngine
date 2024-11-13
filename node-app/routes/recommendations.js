@@ -25,8 +25,8 @@ async function getUserRatings(userId) {
     }
 }
 
-// Function to build ratings matrix and generate recommendations
-function generateRecommendations(ratings, userId, k) {
+// Function to build ratings matrix and train KNN
+function trainKNN(ratings) {
     const users = [];
     const books = [];
     const ratingsMatrix = [];
@@ -59,14 +59,27 @@ function generateRecommendations(ratings, userId, k) {
         throw new Error("Insufficient data for recommendations.");
     }
 
-    const knn = new KNN(ratingsMatrix);
+    // Train KNN on the ratings matrix
+    const knn = new KNN();
+    knn.train(ratingsMatrix, users);
+    return { knn, users, books };
+}
+
+// Function to generate recommendations based on KNN
+function generateRecommendations(ratings, userId, knn, users, books, k) {
     const targetUserIdx = users.indexOf(userId);
-    const neighbors = knn.kNeighbors(ratingsMatrix[targetUserIdx], {k});
+    if (targetUserIdx === -1) {
+        throw new Error("User not found in the ratings data");
+    }
+
+    // Get nearest neighbors based on KNN model
+    const neighbors = knn.kNeighbors(ratings[targetUserIdx], { k });
 
     const recommendations = new Set();
     neighbors.forEach(neighborIdx => {
         ratings.forEach(row => {
             if (row.id === users[neighborIdx] && row.id !== userId) {
+                // Check if the user has already rated the book
                 if (!ratings.some(r => r.book_isbn === row.book_isbn && r.id === userId)) {
                     recommendations.add(row.book_isbn);
                 }
@@ -92,8 +105,12 @@ router.get('/', async (req, res) => {
     try {
         // Get user ratings
         const ratings = await getUserRatings(userId);
-        // Generate recommendations based on ratings
-        const recommendations = generateRecommendations(ratings, userId, k);
+
+        // Train the KNN model using ratings data
+        const { knn, users, books } = trainKNN(ratings);
+
+        // Generate recommendations based on KNN
+        const recommendations = generateRecommendations(ratings, userId, knn, users, books, k);
 
         if (recommendations.length === 0) {
             return res.status(404).send("No recommendations found.");
@@ -111,7 +128,7 @@ router.get('/', async (req, res) => {
         const [bookDetails] = await db.query(bookQuery, [recommendations]);
 
         console.log("Book details fetched:", bookDetails);
-        res.json({recommendations: bookDetails});
+        res.json({ recommendations: bookDetails });
     } catch (error) {
         console.error("Error generating recommendations:", error);
         res.status(500).send("Error generating recommendations.");
