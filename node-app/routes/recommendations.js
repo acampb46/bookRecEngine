@@ -118,11 +118,11 @@ async function generateRecommendations(userId, k) {
 }
 
 router.get('/', async (req, res) => {
-    const userId = req.session.userId;
-    if (!userId) {
-        return res.status(401).send("User not authenticated");
+    if (!req.session.username || !req.session.userId) {
+        return res.status(401).json({ error: 'User not logged in' });
     }
 
+    const userId = req.session.userId;
     const k = 5; // Number of similar users to consider
     try {
         // Generate recommendations by getting ISBNs of recommended books
