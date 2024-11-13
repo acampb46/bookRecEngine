@@ -93,8 +93,12 @@ async function generateRecommendations(userId, k) {
         similarUserRatings.forEach(rating => {
             // Recommend the book if the user hasn't rated it yet and if the rating is high
             if (!userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4) {
-                // Add to recommended books
-                recommendedBooks.push({ book_isbn: rating.book_isbn, stars: rating.stars, userId: similarUser.userId });
+                // Add to recommended books with a rating
+                recommendedBooks.push({
+                    book_isbn: rating.book_isbn,
+                    stars: rating.stars,
+                    userId: similarUser.userId
+                });
             }
         });
     }
@@ -102,12 +106,17 @@ async function generateRecommendations(userId, k) {
     // Sort recommended books by stars (highest rated first)
     recommendedBooks.sort((a, b) => b.stars - a.stars);
 
-    // Return the highest-rated book that the logged-in user hasn't rated
-    const topRecommendedBooks = recommendedBooks.map(book => book.book_isbn);
-    console.log("Recommended books:", topRecommendedBooks);
+    // Limit to the top 10 books
+    const top10Books = recommendedBooks.slice(0, 10);
+
+    // Extract just the ISBNs of the top 10 books
+    const topRecommendedBooks = top10Books.map(book => book.book_isbn);
+
+    console.log("Top recommended books:", topRecommendedBooks);
 
     return topRecommendedBooks;
 }
+
 
 // Define the /recommendations route
 router.get('/', async (req, res) => {
