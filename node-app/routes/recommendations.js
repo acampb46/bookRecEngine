@@ -107,24 +107,39 @@ router.get('/', (req, res) => {
 
     const k = 5; // Number of nearest neighbors
 
+    // Assuming recommendations is an array of book ISBNs
     recommendBooks(userId, k, (err, recommendations) => {
         if (err) {
-            console.error("Error generating recommendations:", err); // Log error
             return res.status(500).send("Error generating recommendations.");
         }
 
+        // Log recommendations for debugging
+        console.log('Recommendations:', recommendations);
+
+        // Check if there are recommendations
+        if (recommendations.length === 0) {
+            return res.status(404).send("No recommendations found.");
+        }
+
         const bookQuery = `
-          SELECT book_isbn, book_title
-          FROM userRatings
-          WHERE book_isbn IN (?);
-        `;
-        db.query(bookQuery, [recommendations], (err, bookDetails) => {
+      SELECT book_isbn, book_title
+      FROM userRatings
+      WHERE book_isbn IN (?);
+    `;
+
+        // Log the query to check if it's valid
+        console.log('Executing SQL query:', bookQuery, recommendations);
+
+        // Pass the recommendations to the query if available
+        db.execute(bookQuery, [recommendations], (err, bookDetails) => {
             if (err) {
-                console.error("Error fetching book details:", err); // Log error
+                console.error('Error fetching book details:', err); // Log the actual error
                 return res.status(500).send("Error fetching book details.");
             }
 
-            console.log("Final book recommendations:", bookDetails); // Log the final book details
+            // Log the result for debugging
+            console.log('Book details fetched:', bookDetails);
+
             res.json({ recommendations: bookDetails });
         });
     });
