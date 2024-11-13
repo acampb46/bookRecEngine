@@ -13,7 +13,8 @@ async function getUserRatings(userId) {
         WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
     `;
     try {
-        const [results] = await db.promise().query(query, [userId]);
+        // Use db.query directly because it's already promise-based
+        const [results] = await db.query(query, [userId]);
         console.log("Query results for user ratings:", results);
         if (results.length === 0) throw new Error("No ratings found for user");
 
@@ -83,7 +84,9 @@ router.get('/', async (req, res) => {
     const k = 5;
 
     try {
+        // Get user ratings
         const ratings = await getUserRatings(userId);
+        // Generate recommendations based on ratings
         const recommendations = generateRecommendations(ratings, userId, k);
 
         if (recommendations.length === 0) {
@@ -97,7 +100,9 @@ router.get('/', async (req, res) => {
         `;
 
         console.log("Executing SQL query for book details:", bookQuery, recommendations);
-        const [bookDetails] = await db.promise().execute(bookQuery, [recommendations]);
+
+        // Use db.query to fetch book details, passing recommendations as parameter
+        const [bookDetails] = await db.query(bookQuery, [recommendations]);
 
         console.log("Book details fetched:", bookDetails);
         res.json({recommendations: bookDetails});
