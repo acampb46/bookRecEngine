@@ -7,12 +7,14 @@ const router = express.Router();
 // Fetch ratings from the userRatings table for the user and other users
 function getUserRatings(userId, callback) {
     const query = `
-        SELECT id, book_isbn, stars
-        FROM userRatings
-        WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
-    `;
+    SELECT id, book_isbn, stars
+    FROM userRatings
+    WHERE book_isbn IN (SELECT book_isbn FROM userRatings WHERE id = ?)
+  `;
     db.query(query, [userId], (err, results) => {
         if (err) return callback(err);
+
+        console.log("Fetched ratings for user:", userId, results); // Debug log
         callback(null, results);
     });
 }
@@ -26,11 +28,14 @@ function recommendBooks(userId, k, callback) {
         const books = [];
         const ratingsMatrix = [];
 
-        // Populate users, books arrays and build a sparse matrix
+        // Populate users and books arrays
         ratings.forEach(row => {
             if (!users.includes(row.id)) users.push(row.id);
             if (!books.includes(row.book_isbn)) books.push(row.book_isbn);
         });
+
+        console.log("Users list:", users); // Debug log
+        console.log("Books list:", books); // Debug log
 
         // Initialize ratingsMatrix with zeros
         for (let i = 0; i < users.length; i++) {
@@ -44,26 +49,44 @@ function recommendBooks(userId, k, callback) {
             ratingsMatrix[userIdx][bookIdx] = row.stars;
         });
 
-        const knn = new KNN(ratingsMatrix, users); // Use users as labels
+        console.log("Ratings Matrix:", ratingsMatrix); // Debug log
 
+        // Initialize KNN with the ratingsMatrix and users as labels
+        try {
+            const knn = new KNN(ratingsMatrix, users);
+            console.log("KNN model initialized successfully."); // Debug log
+        } catch (error) {
+            console.error("Error initializing KNN model:", error); // Debug log
+            return callback(error);
+        }
+
+        // Find target user's index in users array
         const targetUserIdx = users.indexOf(userId);
         if (targetUserIdx === -1) {
+            console.error("Target user not found in users list."); // Debug log
             return callback(new Error("User not found in ratings"));
         }
 
-        // Find k nearest neighbors for the target user
-        const neighbors = knn.predict([ratingsMatrix[targetUserIdx]], k);
+        // Predict K nearest neighbors
+        try {
+            const neighbors = knn.predict([ratingsMatrix[targetUserIdx]], k);
+            console.log("KNN neighbors for user:", neighbors); // Debug log
 
-        const recommendations = [];
-        neighbors.forEach(neighborIdx => {
-            ratings.forEach(row => {
-                if (row.id === users[neighborIdx] && !recommendations.includes(row.book_isbn)) {
-                    recommendations.push(row.book_isbn);
-                }
+            const recommendations = [];
+            neighbors.forEach(neighborIdx => {
+                ratings.forEach(row => {
+                    if (row.id === users[neighborIdx] && !recommendations.includes(row.book_isbn)) {
+                        recommendations.push(row.book_isbn);
+                    }
+                });
             });
-        });
 
-        callback(null, recommendations);
+            console.log("Recommendations for user:", recommendations); // Debug log
+            callback(null, recommendations);
+        } catch (error) {
+            console.error("Error in KNN prediction:", error); // Debug log
+            return callback(error);
+        }
     });
 }
 
@@ -72,8 +95,11 @@ router.get('/', (req, res) => {
     const userId = req.session.userId; // Get the userId from the session
     const k = 5; // Number of nearest neighbors
 
+    console.log("Generating recommendations for user ID:", userId); // Debug log
+
     recommendBooks(userId, k, (err, recommendations) => {
         if (err) {
+            console.error("Error generating recommendations:", err); // Debug log
             return res.status(500).send("Error generating recommendations.");
         }
 
@@ -83,7 +109,12 @@ router.get('/', (req, res) => {
           WHERE book_isbn IN (?);
         `;
         db.query(bookQuery, [recommendations], (err, bookDetails) => {
-            if (err) return res.status(500).send("Error fetching book details.");
+            if (err) {
+                console.error("Error fetching book details:", err); // Debug log
+                return res.status(500).send("Error fetching book details.");
+            }
+
+            console.log("Final book recommendations:", bookDetails); // Debug log
             res.json({ recommendations: bookDetails });
         });
     });
