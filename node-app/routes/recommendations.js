@@ -138,9 +138,9 @@ router.get('/', async (req, res) => {
 
         // Query the book details using the ISBNs of the recommended books
         const bookQuery = `
-            SELECT book_isbn, book_title
-            FROM userRatings
-            WHERE book_isbn IN (?);
+            SELECT isbn13, title
+            FROM books
+            WHERE isbn13 IN (?);
         `;
 
         // Log the SQL query for debugging
