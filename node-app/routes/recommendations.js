@@ -114,7 +114,7 @@ async function generateRecommendations(userId, k) {
 
     console.log("Top recommended books:", topRecommendedBooks);
 
-    return topRecommendedBooks;
+    return {recommendations: topRecommendedBooks};
 }
 
 
