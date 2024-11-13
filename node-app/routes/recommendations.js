@@ -47,7 +47,6 @@ async function getRatingsForBooksRatedByUser(userId) {
 
 // Function to calculate cosine similarity between two users' ratings
 function calculateSimilarity(userRatings, otherUserRatings, ratedBooks) {
-    console.log(`Calculating similarity between users`);
     const userVector = [];
     const otherUserVector = [];
 
@@ -60,9 +59,7 @@ function calculateSimilarity(userRatings, otherUserRatings, ratedBooks) {
     });
 
     // Calculate cosine similarity between the two rating vectors
-    const similarity = cosineSimilarity(userVector, otherUserVector);
-    console.log(`Similarity calculated: ${similarity}`);
-    return similarity;
+    return cosineSimilarity(userVector, otherUserVector);
 }
 
 // Function to generate recommendations
