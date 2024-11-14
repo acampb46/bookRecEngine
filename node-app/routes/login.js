@@ -8,7 +8,7 @@ const db = require('../db'); // Import database connection
 async function fetchRecommendations(userId) {
     try {
         // Simulate a fetch call to the recommendations route for the user
-        const response = await fetch(`https://wwww.gerardcosc573.com:12348/recommendations`, {
+        const response = await fetch(`https://www.gerardcosc573.com:12348/recommendations`, {
             method: 'GET',
             credentials: 'include' // To include cookies if necessary
         });
