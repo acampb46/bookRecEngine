@@ -41,8 +41,7 @@
                 // Set up links to buy the book
                 document.getElementById('buyLinks').innerHTML = `
                     <a href="https://www.amazon.com/s?k=${book.title}" target="_blank">Buy on Amazon</a> |
-                    <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank">Buy on Barnes & Noble</a> |
-                    <a href="https://www.bookdepository.com/search?searchTerm=${book.title}" target="_blank">Buy on Book Depository</a>
+                    <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank">Buy on Barnes & Noble</a>
                 `;
             } else {
                 document.getElementById('bookDetails').innerText = "Book details not available.";
