@@ -6,6 +6,12 @@
     <title>Recommended Books</title>
 </head>
 <body>
+<header>
+    <nav>
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </nav>
+</header>
+
 <h1>Recommended Books Based on Your Ratings</h1>
 <ul id="book-list" class="book-list">
     <!-- Book recommendations will be inserted here dynamically -->
@@ -32,7 +38,7 @@
                     listItem.classList.add('book-item');
 
                     const bookLink = document.createElement('a');
-                    bookLink.href = `/bookDetail?isbn=${book.isbn13}`;  // Link to book detail page
+                    bookLink.href = `bookDetail?isbn=${book.isbn13}`;  // Link to book detail page
                     bookLink.textContent = book.title;  // Book title
 
                     listItem.appendChild(bookLink);
