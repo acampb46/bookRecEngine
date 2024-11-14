@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
     <title>Recommended Books</title>
 </head>
 <body>
@@ -38,7 +39,7 @@
                     listItem.classList.add('book-item');
 
                     const bookLink = document.createElement('a');
-                    bookLink.href = `bookDetail?isbn=${book.isbn13}`;  // Link to book detail page
+                    bookLink.href = `bookDetail.html?isbn=${book.isbn13}`;  // Link to book detail page
                     bookLink.textContent = book.title;  // Book title
 
                     listItem.appendChild(bookLink);
