@@ -28,11 +28,21 @@
                 document.getElementById('bookPublishedDate').innerText = `Published Date: ${book.publishedDate || "N/A"}`;
                 document.getElementById('bookPageCount').innerText = `Page Count: ${book.pageCount || "N/A"}`;
 
+                // Set the book image
+                const bookImage = document.getElementById('bookImage');
+                if (book.imageLinks && book.imageLinks.thumbnail) {
+                    bookImage.src = book.imageLinks.thumbnail;
+                    bookImage.alt = `Cover of ${book.title}`;
+                } else {
+                    bookImage.src = '/no-image-available.jpg'; // default image path
+                    bookImage.alt = 'No cover available';
+                }
+
                 // Set up links to buy the book
                 document.getElementById('buyLinks').innerHTML = `
-                    <a href="https://www.amazon.com/s?k=${isbn}" target="_blank">Buy on Amazon</a> |
-                    <a href="https://www.barnesandnoble.com/s/${isbn}" target="_blank">Buy on Barnes & Noble</a> |
-                    <a href="https://www.bookdepository.com/search?searchTerm=${isbn}" target="_blank">Buy on Book Depository</a>
+                    <a href="https://www.amazon.com/s?k=${book.title}" target="_blank">Buy on Amazon</a> |
+                    <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank">Buy on Barnes & Noble</a> |
+                    <a href="https://www.bookdepository.com/search?searchTerm=${book.title}" target="_blank">Buy on Book Depository</a>
                 `;
             } else {
                 document.getElementById('bookDetails').innerText = "Book details not available.";
@@ -50,6 +60,7 @@
 </header>
 
 <div id="bookDetails">
+    <img id="bookImage" alt="Book cover" />
     <h1 id="bookTitle">Book Title</h1>
     <p id="bookAuthor">Author</p>
     <p id="bookPublisher">Publisher</p>
