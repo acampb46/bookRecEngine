@@ -31,7 +31,7 @@ async function fetchBookDetails(isbn) {
 }
 
 // Route to display book details
-router.get('/book/:isbn', async (req, res) => {
+router.get('/', async (req, res) => {
     const isbn = req.params.isbn;
 
     try {
