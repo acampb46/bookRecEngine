@@ -57,7 +57,7 @@ app.use('/register', registerRoute);
 app.use('/login', loginRoute);
 app.use('/isLoggedIn', isLoggedInRoute);
 app.use('/recommendations', recommendationsRoute);
-app.use('/book')
+app.use('/book/:isbn', bookRoute);
 
 // Route to pass environment variables to the client
 app.get('/config', (req, res) => {
