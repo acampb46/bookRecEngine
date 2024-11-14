@@ -47,7 +47,6 @@ const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login')
 const isLoggedInRoute = require('./routes/isLoggedIn');
 const recommendationsRoute = require('./routes/recommendations');
-const bookRoute = require('./routes/book');
 
 // Use routes
 app.use('/submitReview', submitReviewRoute);
@@ -57,7 +56,6 @@ app.use('/register', registerRoute);
 app.use('/login', loginRoute);
 app.use('/isLoggedIn', isLoggedInRoute);
 app.use('/recommendations', recommendationsRoute);
-app.use('/book/', bookRoute);
 
 // Route to pass environment variables to the client
 app.get('/config', (req, res) => {

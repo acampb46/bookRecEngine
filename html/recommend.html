@@ -32,7 +32,7 @@
                     listItem.classList.add('book-item');
 
                     const bookLink = document.createElement('a');
-                    bookLink.href = `/book/${book.isbn13}`;  // Link to book detail page
+                    bookLink.href = `/bookDetail?isbn=${book.isbn13}`;  // Link to book detail page
                     bookLink.textContent = book.title;  // Book title
 
                     listItem.appendChild(bookLink);

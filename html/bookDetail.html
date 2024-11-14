@@ -3,36 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= book.title %> - Book Details</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Optional CSS file -->
+    <link rel="stylesheet" href="/styles.css">
+    <title>Book Details</title>
+    <script>
+        async function loadBookDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isbn = urlParams.get('isbn');
+
+            if (!isbn) {
+                document.getElementById('bookDetails').innerText = "Book not found.";
+                return;
+            }
+
+            // Fetch book info from Google Books API
+            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+            const data = await response.json();
+            const book = data.items ? data.items[0].volumeInfo : null;
+
+            if (book) {
+                document.getElementById('bookTitle').innerText = book.title;
+                document.getElementById('bookAuthor').innerText = `Author: ${book.authors ? book.authors.join(', ') : 'Unknown'}`;
+                document.getElementById('bookDescription').innerText = book.description || "No description available.";
+                document.getElementById('bookPublisher').innerText = `Publisher: ${book.publisher || "N/A"}`;
+                document.getElementById('bookPublishedDate').innerText = `Published Date: ${book.publishedDate || "N/A"}`;
+                document.getElementById('bookPageCount').innerText = `Page Count: ${book.pageCount || "N/A"}`;
+
+                // Set up links to buy the book
+                document.getElementById('buyLinks').innerHTML = `
+                    <a href="https://www.amazon.com/s?k=${isbn}" target="_blank">Buy on Amazon</a> |
+                    <a href="https://www.barnesandnoble.com/s/${isbn}" target="_blank">Buy on Barnes & Noble</a> |
+                    <a href="https://www.bookdepository.com/search?searchTerm=${isbn}" target="_blank">Buy on Book Depository</a>
+                `;
+            } else {
+                document.getElementById('bookDetails').innerText = "Book details not available.";
+            }
+        }
+
+        window.onload = loadBookDetails;
+    </script>
 </head>
 <body>
 <header>
-    <h1><%= book.title %></h1>
-    <p><strong>Authors:</strong> <%= book.authors ? book.authors.join(', ') : 'Not available' %></p>
-    <p><strong>Published:</strong> <%= book.publishedDate %></p>
+    <nav>
+        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </nav>
 </header>
 
-<section>
-    <h2>Description</h2>
-    <p><%= book.description || 'No description available.' %></p>
-</section>
+<div id="bookDetails">
+    <h1 id="bookTitle">Book Title</h1>
+    <p id="bookAuthor">Author</p>
+    <p id="bookPublisher">Publisher</p>
+    <p id="bookPublishedDate">Published Date</p>
+    <p id="bookPageCount">Page Count</p>
+    <p id="bookDescription">Description</p>
+</div>
 
-<section>
-    <h2>Cover Image</h2>
-    <% if (book.imageLinks && book.imageLinks.thumbnail) { %>
-    <img src="<%= book.imageLinks.thumbnail %>" alt="Book Cover">
-    <% } else { %>
-    <p>No image available.</p>
-    <% } %>
-</section>
+<h2>Where to Buy</h2>
+<div id="buyLinks">
+    <!-- Links will be populated dynamically based on the ISBN -->
+</div>
 
-<section>
-    <a href="/submitReview?isbn=<%= book.industryIdentifiers[0].identifier %>">Leave a Review</a>
-</section>
-
-<footer>
-    <p>&copy; 2024 Book Recommendations. All rights reserved.</p>
-</footer>
 </body>
 </html>
