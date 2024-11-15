@@ -8,10 +8,15 @@ const db = require('../db'); // Import database connection
 async function fetchRecommendations(userId) {
     try {
         // Simulate a fetch call to the recommendations route for the user
-        const response = await fetch(`https://www.gerardcosc573.com:12348/recommendations`, {
+        const response = await fetch('https://www.gerardcosc573.com:12348/recommendations', {
             method: 'GET',
-            credentials: 'include' // To include cookies if necessary
-        });
+            credentials: 'include'
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Store the recommendations in sessionStorage so they are available later
+                sessionStorage.setItem('recommendations', JSON.stringify(data.recommendations));
+            });
 
         if (!response.ok) {
             throw new Error('Failed to fetch recommendations');
