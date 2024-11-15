@@ -27,9 +27,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                // Store the recommendations in sessionStorage so they are available later
-                sessionStorage.setItem('recommendations', JSON.stringify(data.recommendations));
-
                 // Get the book list container
                 const bookList = document.getElementById('book-list');
 
@@ -54,40 +51,8 @@
             });
     }
 
-    // Function to load recommendations from sessionStorage if available
-    function loadRecommendations() {
-        const recommendations = sessionStorage.getItem('recommendations');
-
-        if (recommendations) {
-            // Parse the stored recommendations
-            const parsedRecommendations = JSON.parse(recommendations);
-
-            // Get the book list container
-            const bookList = document.getElementById('book-list');
-
-            // Clear any existing recommendations
-            bookList.innerHTML = '';
-
-            // Loop through the data and create a list item for each recommended book
-            parsedRecommendations.forEach(book => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('book-item');
-
-                const bookLink = document.createElement('a');
-                bookLink.href = `bookDetail.html?isbn=${book.isbn13}`;  // Link to book detail page
-                bookLink.textContent = book.title;  // Book title
-
-                listItem.appendChild(bookLink);
-                bookList.appendChild(listItem);
-            });
-        } else {
-            // If recommendations are not in sessionStorage, fetch them from the server
-            fetchRecommendations();
-        }
-    }
-
-    // Load recommendations when the page loads
-    window.onload = loadRecommendations;
+    // Fetch recommendations when the page loads
+    window.onload = fetchRecommendations;
 </script>
 </body>
 </html>
