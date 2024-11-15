@@ -3,73 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"  href="/styles.css">
-    <title>Login - Book Recommendation Engine</title>
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<nav>
-    <ul>
-        <li><a href="/about.html">About</a></li>
-        <li><a href="/index.html">Register</a></li>
-    </ul>
-</nav>
+<body class="bg-light">
 
-<header>
-    <h1>Login to Your Account</h1>
-</header>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="row w-100">
+        <div class="col-md-6 col-lg-4 mx-auto">
+            <!-- Login Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Login</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Login Form -->
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </div>
+                        <div id="errorMessage" class="text-danger d-none">
+                            <small>Invalid username or password</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<section id="loginForm">
-    <form id="login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" autocomplete="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" autocomplete="new-password" required>
-        <br>
-        <button type="submit">Login</button>
-    </form>
-    <div id="message" style="display: none;"></div>
-</section>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Login form submit event
-        document.getElementById('login').addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
+        // Add event listener to the login form
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault();  // Prevent the default form submission
 
-            const formData = new FormData(this);
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Reset error message
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.classList.add('d-none');
+
             try {
                 const response = await fetch('https://www.gerardcosc573.com:12348/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(Object.fromEntries(formData)),
-                    credentials: 'include' // Include credentials for session management
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'
                 });
 
-                const result = await response.json();
-                const messageDiv = document.getElementById('message');
-                messageDiv.style.display = 'block';
+                if (!response.ok) throw new Error('Login failed');
 
-                if (response.ok) {
-                    messageDiv.textContent = result.message || 'Login successful!';
-                    messageDiv.style.color = 'green';
-                    // Redirect to dashboard after a successful login
-                    window.location.href = '/dashboard.html';
+                const data = await response.json();
+                if (data.loggedIn) {
+                    window.location.href = '/dashboard.html';  // Redirect to dashboard if login is successful
                 } else {
-                    messageDiv.textContent = result.message || 'Login failed. Please check your username and password.';
-                    messageDiv.style.color = 'red';
+                    errorMessage.classList.remove('d-none');  // Show error message if login fails
                 }
             } catch (error) {
-                console.error('Error during login:', error);
-                const messageDiv = document.getElementById('message');
-                messageDiv.style.display = 'block';
-                messageDiv.textContent = 'An error occurred during login.';
-                messageDiv.style.color = 'red';
+                console.error('Login error:', error);
+                errorMessage.classList.remove('d-none');  // Show error message if network error
             }
         });
     });
 </script>
+
 </body>
 </html>
