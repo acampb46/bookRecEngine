@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Book Details</title>
     <script>
         async function loadBookDetails() {
@@ -40,8 +40,8 @@
 
                 // Set up links to buy the book
                 document.getElementById('buyLinks').innerHTML = `
-                    <a href="https://www.amazon.com/s?k=${book.title}" target="_blank">Buy on Amazon</a> |
-                    <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank">Buy on Barnes & Noble</a>
+                    <a href="https://www.amazon.com/s?k=${book.title}" target="_blank" class="btn btn-outline-primary btn-sm">Buy on Amazon</a>
+                    <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank" class="btn btn-outline-success btn-sm">Buy on Barnes & Noble</a>
                 `;
             } else {
                 document.getElementById('bookDetails').innerText = "Book details not available.";
@@ -52,25 +52,32 @@
     </script>
 </head>
 <body>
-<header>
-    <nav>
-        <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-    </nav>
-</header>
+<div class="container mt-4">
 
-<div id="bookDetails">
-    <img id="bookImage" alt="Book cover" />
-    <h1 id="bookTitle">Book Title</h1>
-    <p id="bookAuthor">Author</p>
-    <p id="bookPublisher">Publisher</p>
-    <p id="bookPublishedDate">Published Date</p>
-    <p id="bookPageCount">Page Count</p>
-    <p id="bookDescription">Description</p>
-</div>
+    <!-- Header with navigation button -->
+    <header class="mb-4">
+        <nav>
+            <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+        </nav>
+    </header>
 
-<h2>Where to Buy</h2>
-<div id="buyLinks">
-    <!-- Links will be populated dynamically based on the ISBN -->
+    <!-- Book details section -->
+    <div id="bookDetails" class="text-center">
+        <img id="bookImage" class="img-fluid" alt="Book cover" />
+        <h1 id="bookTitle" class="mt-3"></h1>
+        <p id="bookAuthor" class="lead"></p>
+        <p id="bookPublisher" class="text-muted"></p>
+        <p id="bookPublishedDate" class="text-muted"></p>
+        <p id="bookPageCount" class="text-muted"></p>
+        <p id="bookDescription"></p>
+    </div>
+
+    <!-- Where to Buy section -->
+    <h2 class="mt-4">Where to Buy</h2>
+    <div id="buyLinks" class="mt-2">
+        <!-- Links will be populated dynamically based on the ISBN -->
+    </div>
+
 </div>
 
 </body>
