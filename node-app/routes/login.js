@@ -3,32 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('../db'); // Import database connection
 
-
-// Helper function to fetch recommendations
-async function fetchRecommendations(userId) {
-    try {
-        // Simulate a fetch call to the recommendations route for the user
-        const response = await fetch('https://www.gerardcosc573.com:12348/recommendations', {
-            method: 'GET',
-            credentials: 'include'
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Store the recommendations in sessionStorage so they are available later
-                sessionStorage.setItem('recommendations', JSON.stringify(data.recommendations));
-            });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch recommendations');
-        }
-
-        const data = await response.json();
-        return data.recommendations;
-    } catch (error) {
-        console.error('Error fetching recommendations:', error);
-        return [];
-    }
-}
+const fetchRecommendations = require('./recommendations');
 
 // POST route for user login
 router.post('/', async (req, res) => {
@@ -73,9 +48,10 @@ router.post('/', async (req, res) => {
         req.session.userId = user.id; // Store user ID in session
         req.session.username = user.username; // Store username in session
 
-        // Fetch recommendations immediately after successful login using the recommendations route
-        const recommendationsResponse = await fetchRecommendations(req.session.userId);
-        sessionStorage.setItem('recommendations', JSON.stringify(recommendationsResponse));
+        // Fetch recommendations after login and store in session
+        req.session.recommendations = await fetchRecommendations(user.id); // Store recommendations in the session
+
+        res.status(200).json({ message: 'Login successful', success: true });
 
         // Send login response along with the recommendations
         res.status(200).json({
