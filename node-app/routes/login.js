@@ -70,12 +70,12 @@ router.post('/', async (req, res) => {
 
         // Fetch recommendations immediately after successful login using the recommendations route
         const recommendationsResponse = await fetchRecommendations(req.session.userId);
+        sessionStorage.setItem('recommendations', JSON.stringify(recommendationsResponse));
 
         // Send login response along with the recommendations
         res.status(200).json({
             message: 'Login successful',
-            success: true,
-            recommendations: recommendationsResponse // Include recommendations in the response
+            success: true
         });
     } catch (err) {
         console.error("Server error:", err);
