@@ -3,10 +3,7 @@ const mysql = require('mysql2'); // Make sure you are using mysql2
 // MySQL connection
 const pool = mysql.createPool({
     connectionLimit: 10, // Adjust the limit based on your app's needs
-    host: '3.147.130.188',
-    user: 'COSC573',
-    password: 'COSC573',
-    database: 'bookRecEngine'
+    host: '3.147.130.188', user: 'COSC573', password: 'COSC573', database: 'bookRecEngine'
 });
 
 // Create a promise-based connection pool

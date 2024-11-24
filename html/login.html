@@ -10,12 +10,15 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light container-fluid">
     <a class="navbar-brand" href="#">Book Recommendation Engine</a>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
-        <li class="nav-item"><a class="nav-link" href="/index.html">Register</a></li>
-    </ul>
+    <div class="collapse navbar-collapse justify-content-end">
+        <a class="navbar-brand" href="#">Book Recommendation Engine</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="/index.html">Register</a></li>
+        </ul>
+    </div>
 </nav>
 
 <!-- Main content -->
@@ -33,7 +36,8 @@
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" class="form-control" autocomplete="new-password" required>
+                <input type="password" id="password" name="password" class="form-control" autocomplete="new-password"
+                       required>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>

@@ -21,8 +21,7 @@ const options = {
 const allowedOrigins = ['https://gerardcosc573.com', 'https://www.gerardcosc573.com'];
 
 app.use(cors({
-    credentials: true,
-    origin: function (origin, callback) {
+    credentials: true, origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -64,15 +63,14 @@ app.use('/ratedBooks', ratedBooksRoute);
 // Route to pass environment variables to the client
 app.get('/config', (req, res) => {
     res.json({
-        apiKey: process.env.GOOGLE_BOOKS_API_KEY,
-        dbKey: process.env.COSC_573_USER_PASSWORD,
+        apiKey: process.env.GOOGLE_BOOKS_API_KEY, dbKey: process.env.COSC_573_USER_PASSWORD,
     });
 });
 
 // Route to get userId from session
 app.get('/getUserId', (req, res) => {
     if (req.session.userId) {
-        res.json({ userId: req.session.userId });
+        res.json({userId: req.session.userId});
     } else {
         res.status(401).send('User not authenticated');
     }
