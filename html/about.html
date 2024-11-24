@@ -44,7 +44,7 @@
         <ul class="list-group mb-4">
             <li class="list-group-item">Enable users to create accounts and securely log in.</li>
             <li class="list-group-item">Allow users to search for and review books.</li>
-            <li class="list-group-item">Implement a recommendation system using collaborative filtering and the K-Nearest Neighbors (KNN) algorithm.</li>
+            <li class="list-group-item">Implement a recommendation system using the K-Nearest Neighbors (KNN) algorithm in conjunction with Cosine Similarity.</li>
         </ul>
     </section>
 
@@ -60,6 +60,7 @@
             <li class="list-group-item"><strong>userData:</strong> Stores user account details.</li>
             <li class="list-group-item"><strong>userBooks:</strong> Stores book titles, ISBNs, and metadata.</li>
             <li class="list-group-item"><strong>userRatings:</strong> Stores user reviews, ratings, and relevant book information.</li>
+            <li class="list-group-item"><strong>books:</strong> Stores information for ten thousand books from the Goodreads API.</li>
         </ul>
 
         <h3>3. Implementing User Authentication</h3>
@@ -69,7 +70,7 @@
         <p>RESTful APIs were built using Express.js for handling book data and user reviews. Routes were created for submitting reviews, retrieving book data, and accessing user-specific content.</p>
 
         <h3>5. Developing the Recommendation System</h3>
-        <p>The recommendation system uses collaborative filtering and the KNN algorithm to suggest books based on user ratings by:</p>
+        <p>The recommendation system uses the KNN algorithm and Cosine Similarity to suggest books based on user ratings by:</p>
         <ul class="list-group mb-4">
             <li class="list-group-item">Collecting and analyzing user rating data.</li>
             <li class="list-group-item">Calculating similarity between users to provide relevant book recommendations.</li>
@@ -79,7 +80,7 @@
         <p>To enrich book information, the Google Books API was integrated. When users click on book titles, detailed information is retrieved and displayed, with an option to submit reviews.</p>
 
         <h3>7. Designing the Front-End Interface</h3>
-        <p>HTML, CSS, and JavaScript were used to create a user-friendly front end, including main pages such as the login page, user dashboard, and review submission page.</p>
+        <p>HTML, Bootstrap, and JavaScript were used to create a user-friendly front end, including main pages such as the login page, user dashboard, and review submission page.</p>
 
         <h3>8. Testing and Deployment</h3>
         <p>After development, the project was tested to ensure all features work as expected. Finally, it was deployed for users online.</p>

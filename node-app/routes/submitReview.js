@@ -13,7 +13,8 @@ router.post('/', async (req, res) => {
     console.log(req.body);
 
     const query = `INSERT INTO userRatings (id, stars, book_isbn, book_title)
-                   VALUES (?, ?, ?, ?)`;
+                   VALUES (?, ?, ?, ?)
+                   ON DUPLICATE KEY UPDATE stars = VALUES(stars)`;
 
     try {
         const [result] = await db.query(query, [req.session.userId, stars, book_isbn, book_title]);
