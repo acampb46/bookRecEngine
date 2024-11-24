@@ -61,14 +61,23 @@
 <!-- Bootstrap Container -->
 <div class="container mt-4">
 
-    <!-- Header -->
-    <header class="mb-4">
-        <nav class="nav justify-content-center">
-            <button class="btn btn-primary mx-2" onclick="window.location.href='search.html'">Search for Books</button>
-            <button class="btn btn-success mx-2" onclick="window.location.href='recommend.html'">Recommendations</button>
-            <button class="btn btn-danger mx-2" onclick="logout()">Logout</button>
-        </nav>
-    </header>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Book Recommendation Engine</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="window.location.href='search.html'">Search for Books</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="window.location.href='recommend.html'">Recommendations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="logout()">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <div class="text-center">
