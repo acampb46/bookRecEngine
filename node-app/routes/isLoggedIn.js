@@ -5,10 +5,10 @@ const router = express.Router();
 router.get('/', (req, res) => {
 
     if (req.session.user) {
-        return res.json({ loggedIn: true, username: req.session.user });
+        return res.json({loggedIn: true, username: req.session.user});
     }
-    
-    res.json({ loggedIn: false });
+
+    res.json({loggedIn: false});
 });
 
 module.exports = router;

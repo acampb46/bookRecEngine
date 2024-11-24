@@ -70,7 +70,7 @@ async function generateRecommendations(userId, k) {
             const similarity = calculateSimilarity(userRatings, otherUserRatings, ratedBooks);
 
             // Add to the list and mark user as seen
-            similarUsers.push({ userId: rating.id, similarity });
+            similarUsers.push({userId: rating.id, similarity});
             seenUsers.add(rating.id);
         }
     });
@@ -95,16 +95,11 @@ async function generateRecommendations(userId, k) {
         // Iterate through the books rated by this similar user
         similarUserRatings.forEach(rating => {
             // Recommend the book if the user hasn't rated it yet, if the rating is high, and if it's not already added
-            if (
-                !userRatings.some(r => r.book_isbn === rating.book_isbn) &&
-                rating.stars >= 4 &&
-                !seenBooks.has(rating.book_isbn) // Check if the book is already recommended
+            if (!userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4 && !seenBooks.has(rating.book_isbn) // Check if the book is already recommended
             ) {
                 // Add to recommended books with a rating
                 recommendedBooks.push({
-                    book_isbn: rating.book_isbn,
-                    stars: rating.stars,
-                    userId: similarUser.userId
+                    book_isbn: rating.book_isbn, stars: rating.stars, userId: similarUser.userId
                 });
 
                 // Mark this book as seen
@@ -129,11 +124,11 @@ async function generateRecommendations(userId, k) {
 
 router.get('/', async (req, res) => {
     if (!req.session.username || !req.session.userId) {
-        return res.status(401).json({ error: 'User not logged in' });
+        return res.status(401).json({error: 'User not logged in'});
     }
 
     const userId = req.session.userId;
-    const k = 5; // Number of similar users to consider
+    const k = 10; // Number of similar users to consider
     try {
         // Generate recommendations by getting ISBNs of recommended books
         const recommendations = await generateRecommendations(userId, k);
@@ -170,7 +165,7 @@ router.get('/', async (req, res) => {
         }
 
         // Return the recommendations with book details
-        res.json({ recommendations: bookDetails });
+        res.json({recommendations: bookDetails});
     } catch (error) {
         console.error("Error generating recommendations:", error);
         res.status(500).send("Error generating recommendations.");
