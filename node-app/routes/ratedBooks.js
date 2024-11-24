@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         const [ratedBooks] = await db.query(`SELECT b.ISBN, b.title, r.stars
                                                FROM userRatings r
                                                         JOIN userBooks b ON r.book_isbn = b.ISBN
-                                               WHERE r.id = 6`, [userId]);
+                                               WHERE r.id = ?`, [userId]);
         res.json({books: ratedBooks});
     } catch (error) {
         console.error('Error fetching rated books:', error);
