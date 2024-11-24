@@ -85,33 +85,41 @@ async function generateRecommendations(userId, k) {
 
     // Now, we need to find the highest-rated books that the current user hasn't rated
     const recommendedBooks = [];
+    const seenBooks = new Set(); // To track distinct book ISBNs
 
-    // Iterate through the top similar users
+// Iterate through the top similar users
     for (const similarUser of topSimilarUsers) {
         // Fetch all the books rated by this similar user
         const similarUserRatings = await getRatingsForBooksRatedByUser(similarUser.userId);
 
         // Iterate through the books rated by this similar user
         similarUserRatings.forEach(rating => {
-            // Recommend the book if the user hasn't rated it yet and if the rating is high
-            if (!userRatings.some(r => r.book_isbn === rating.book_isbn) && rating.stars >= 4) {
+            // Recommend the book if the user hasn't rated it yet, if the rating is high, and if it's not already added
+            if (
+                !userRatings.some(r => r.book_isbn === rating.book_isbn) &&
+                rating.stars >= 4 &&
+                !seenBooks.has(rating.book_isbn) // Check if the book is already recommended
+            ) {
                 // Add to recommended books with a rating
                 recommendedBooks.push({
                     book_isbn: rating.book_isbn,
                     stars: rating.stars,
                     userId: similarUser.userId
                 });
+
+                // Mark this book as seen
+                seenBooks.add(rating.book_isbn);
             }
         });
     }
 
-    // Sort recommended books by stars (highest rated first)
+// Sort recommended books by stars (highest rated first)
     recommendedBooks.sort((a, b) => b.stars - a.stars);
 
-    // Limit to the top 10 books
+// Limit to the top 10 distinct books
     const top10Books = recommendedBooks.slice(0, 10);
 
-    // Extract just the ISBNs of the top 10 books
+// Extract just the ISBNs of the top 10 books
     const topRecommendedBooks = top10Books.map(book => book.book_isbn);
 
     console.log("Top recommended books:", topRecommendedBooks);
