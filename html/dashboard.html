@@ -24,7 +24,7 @@
                         let link = document.createElement('a');
 
                         // Create a link to review.html with the book's ISBN
-                        link.href = `review.html?isbn=${book.ISBN}`; // Send ISBN in the URL
+                        link.href = `review.html?isbn=${book.title}`; // Send ISBN in the URL
                         link.innerText = book.title; // Display book title
                         link.classList.add('list-group-item', 'list-group-item-action');
                         listItem.appendChild(link);
