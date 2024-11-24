@@ -7,32 +7,60 @@
     <title>User Dashboard</title>
     <script>
         function loadDashboard() {
-            // Fetch the books the user has read from the server
-            fetch('https://www.gerardcosc573.com:12348/userBooks', {
+            // Fetch the books to be read
+            fetch('https://www.gerardcosc573.com:12348/toReadBooks', {
                 method: 'GET',
                 credentials: 'include'
             })
                 .then(response => {
-                    if (!response.ok) throw new Error('Failed to fetch books');
+                    if (!response.ok) throw new Error('Failed to fetch books to read');
                     return response.json();
                 })
                 .then(data => {
-                    let booksList = document.getElementById('booksList');
-                    booksList.innerHTML = ''; // Clear previous list
+                    let toReadList = document.getElementById('toReadList');
+                    toReadList.innerHTML = ''; // Clear previous list
                     data.books.forEach(book => {
                         let listItem = document.createElement('li');
                         let link = document.createElement('a');
 
                         // Create a link to review.html with the book's ISBN
-                        link.href = `review.html?isbn=${book.ISBN}`; // Send ISBN in the URL
-                        link.innerText = book.title; // Display book title
+                        link.href = `review.html?isbn=${book.ISBN}`;
+                        link.innerText = book.title;
                         link.classList.add('list-group-item', 'list-group-item-action');
                         listItem.appendChild(link);
-                        booksList.appendChild(listItem);
+                        toReadList.appendChild(listItem);
                     });
                 })
                 .catch(error => {
-                    console.error('Error fetching user books:', error);
+                    console.error('Error fetching books to read:', error);
+                });
+
+            // Fetch the books the user has rated
+            fetch('https://www.gerardcosc573.com:12348/ratedBooks', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch rated books');
+                    return response.json();
+                })
+                .then(data => {
+                    let ratedList = document.getElementById('ratedList');
+                    ratedList.innerHTML = ''; // Clear previous list
+                    data.books.forEach(book => {
+                        let listItem = document.createElement('li');
+                        let link = document.createElement('a');
+
+                        // Create a link to review.html with the book's ISBN
+                        link.href = `review.html?isbn=${book.ISBN}`;
+                        link.innerText = `${book.title} - Rated: ${book.rating} stars`;
+                        link.classList.add('list-group-item', 'list-group-item-action');
+                        listItem.appendChild(link);
+                        ratedList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching rated books:', error);
                 });
         }
 
@@ -82,10 +110,14 @@
     <!-- Main Content -->
     <div class="text-center">
         <h1>Your Dashboard</h1>
-        <h2>Books You've Read</h2>
 
-        <!-- Books List -->
-        <ul id="booksList" class="list-group"></ul>
+        <h2>Books to Be Read</h2>
+        <!-- To Read Books List -->
+        <ul id="toReadList" class="list-group mb-4"></ul>
+
+        <h2>Books You've Rated</h2>
+        <!-- Rated Books List -->
+        <ul id="ratedList" class="list-group mb-4"></ul>
     </div>
 
 </div>
