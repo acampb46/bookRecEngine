@@ -8,15 +8,15 @@
     <script>
         async function loadBookDetails() {
             const urlParams = new URLSearchParams(window.location.search);
-            const title = urlParams.get('title');
+            const isbn = urlParams.get('isbn');
 
-            if (!title) {
+            if (!isbn) {
                 document.getElementById('bookDetails').innerText = "Book not found.";
                 return;
             }
 
             // Fetch book info from Google Books API
-            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=title:${title}`);
+            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
             const data = await response.json();
             const book = data.items ? data.items[0].volumeInfo : null;
 

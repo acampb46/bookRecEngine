@@ -47,7 +47,7 @@
                     listItem.classList.add('list-group-item');
 
                     const bookLink = document.createElement('a');
-                    bookLink.href = `bookDetail.html?title=${book.title}`;  // Link to book detail page
+                    bookLink.href = `bookDetail.html?isbn=${book.isbn}`;  // Link to book detail page
                     bookLink.textContent = book.title;  // Book title
                     bookLink.classList.add('stretched-link');  // Make the link fill the entire list item
 
