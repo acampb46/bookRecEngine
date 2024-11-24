@@ -61,23 +61,25 @@ async function generateRecommendations(userId, k) {
 
     const ratedBooks = [...new Set(userRatings.map(r => r.book_isbn))]; // Get unique books rated by the user
     const similarUsers = [];
+    const seenUsers = new Set(); // To track unique users
 
     // Iterate through all the ratings of books that the user has rated
     ratingsForBooks.forEach(rating => {
-        if (rating.id !== userId) { // Don't compare with the same user
+        if (rating.id !== userId && !seenUsers.has(rating.id)) { // Ensure the user is unique
             const otherUserRatings = ratingsForBooks.filter(r => r.id === rating.id);
             const similarity = calculateSimilarity(userRatings, otherUserRatings, ratedBooks);
 
-            // Push the similarity score and the user ID into the array
+            // Add to the list and mark user as seen
             similarUsers.push({ userId: rating.id, similarity });
+            seenUsers.add(rating.id);
         }
     });
 
     // Sort similar users by similarity in descending order
     similarUsers.sort((a, b) => b.similarity - a.similarity);
 
-    // Get top k similar users
-    const topSimilarUsers = similarUsers.slice(0, k);
+    // Ensure top similar users are unique and slice to get top k
+    const topSimilarUsers = [...new Map(similarUsers.map(user => [user.userId, user])).values()].slice(0, k);
 
     console.log("Top similar users:", topSimilarUsers);
 
