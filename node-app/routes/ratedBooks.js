@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 
 // Fetch books user has rated
-router.get('/ratedBooks', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
         const [ratedBooks] = await db.execute(`SELECT b.ISBN, b.title, r.stars

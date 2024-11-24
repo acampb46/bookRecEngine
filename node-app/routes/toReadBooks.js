@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 
 // Fetch books to be read
-router.get('/toReadBooks', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
         const [toReadBooks] = await db.execute('SELECT DISTINCT b.ISBN, b.title FROM userBooks b JOIN userRatings r ON  b.userID=r.id WHERE  b.ISBN NOT IN (SELECT book_isbn FROM userRatings WHERE id=?)', [userId]);
