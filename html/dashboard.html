@@ -53,7 +53,7 @@
 
                         // Create a link to review.html with the book's ISBN
                         link.href = `review.html?isbn=${book.ISBN}`;
-                        link.innerText = `${book.title} - Rated: ${book.rating} stars`;
+                        link.innerText = `${book.title} - Rated: ${book.stars} stars`;
                         link.classList.add('list-group-item', 'list-group-item-action');
                         listItem.appendChild(link);
                         ratedList.appendChild(listItem);
