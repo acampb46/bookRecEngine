@@ -6,7 +6,16 @@ const db = require('../db');
 router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
-        const [toReadBooks] = await db.query('SELECT DISTINCT b.ISBN, b.title FROM userBooks b JOIN userRatings r ON  b.userID=r.id WHERE b.userID = ? AND b.ISBN NOT IN (SELECT book_isbn FROM userRatings WHERE id=?)', [userId, userId]);
+        const [toReadBooks] = await db.query('SELECT DISTINCT b.ISBN, b.title
+FROM userBooks b
+JOIN userRatings r ON b.userID = r.id
+WHERE b.userID = ?
+  AND NOT EXISTS (
+    SELECT 1
+    FROM userRatings ur
+    WHERE ur.id = ? AND ur.book_isbn = b.ISBN
+  );
+)', [userId, userId]);
         res.json({books: toReadBooks});
     } catch (error) {
         console.error('Error fetching books to read:', error);
