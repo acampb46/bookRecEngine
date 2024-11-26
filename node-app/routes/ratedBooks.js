@@ -6,7 +6,7 @@ const db = require('../db');
 router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
-        const [ratedBooks] = await db.query(`SELECT b.ISBN, b.title, r.stars
+        const [ratedBooks] = await db.query(`SELECT DISTINCT b.ISBN, b.title, r.stars
                                              FROM userRatings r
                                                       JOIN userBooks b ON r.book_isbn = b.ISBN
                                              WHERE r.id = ?`, [userId]);
