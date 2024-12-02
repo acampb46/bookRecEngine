@@ -28,23 +28,65 @@
                 document.getElementById('bookPublishedDate').innerText = `Published Date: ${book.publishedDate || "N/A"}`;
                 document.getElementById('bookPageCount').innerText = `Page Count: ${book.pageCount || "N/A"}`;
 
-                // Set the book image
                 const bookImage = document.getElementById('bookImage');
                 if (book.imageLinks && book.imageLinks.thumbnail) {
                     bookImage.src = book.imageLinks.thumbnail;
                     bookImage.alt = `Cover of ${book.title}`;
                 } else {
-                    bookImage.src = '/no-image-available.jpg'; // default image path
+                    bookImage.src = '/no-image-available.jpg';
                     bookImage.alt = 'No cover available';
                 }
 
-                // Set up links to buy the book
                 document.getElementById('buyLinks').innerHTML = `
                     <a href="https://www.amazon.com/s?k=${book.title}" target="_blank" class="btn btn-outline-primary btn-sm">Buy on Amazon</a>
                     <a href="https://www.barnesandnoble.com/s/${book.title}" target="_blank" class="btn btn-outline-success btn-sm">Buy on Barnes & Noble</a>
                 `;
+
+                // Populate hidden form for submission
+                const form = document.getElementById('addBookForm');
+                form.title.value = book.title;
+                form.author.value = book.authors ? book.authors.join(', ') : '';
+                form.publisher.value = book.publisher || '';
+                form.publishedDate.value = book.publishedDate || '';
+                form.description.value = book.description || '';
+                form.ISBN.value = isbn;
+                form.pageCount.value = book.pageCount || '';
+                form.categories.value = book.categories ? book.categories.join(', ') : '';
+                form.averageRating.value = book.averageRating || '';
+                form.ratingsCount.value = book.ratingsCount || '';
+                form.imageLink.value = book.imageLinks ? book.imageLinks.thumbnail : '';
+                form.buyLink.value = book.infoLink || '';
+                form.webReaderLink.value = book.webReaderLink || '';
             } else {
                 document.getElementById('bookDetails').innerText = "Book details not available.";
+            }
+        }
+
+        async function addBookToList(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('addBookForm');
+            const formData = new FormData(form);
+            const bookData = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('https://www.gerardcosc573.com:12348/userBooks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookData)
+                });
+
+                if (response.ok) {
+                    alert('Book added to your list!');
+                } else {
+                    const error = await response.text();
+                    alert(`Failed to add book: ${error}`);
+                }
+            } catch (error) {
+                console.error('Error adding book:', error);
+                alert('An error occurred while adding the book.');
             }
         }
 
@@ -53,19 +95,17 @@
 </head>
 <body>
 <div class="container mt-4">
-
     <nav class="navbar navbar-expand-lg navbar-light bg-light container-fluid">
         <a class="navbar-brand" href="#">Book Recommendation Engine</a>
         <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" onclick="window.location.href='dashboard.html'">Back to Dashboard</a>
+                    <a class="nav-link" href="dashboard.html">Back to Dashboard</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <!-- Book details section -->
     <div id="bookDetails" class="text-center">
         <img id="bookImage" class="img-fluid" alt="Book cover" />
         <h1 id="bookTitle" class="mt-3"></h1>
@@ -74,34 +114,28 @@
         <p id="bookPublishedDate" class="text-muted"></p>
         <p id="bookPageCount" class="text-muted"></p>
         <p id="bookDescription"></p>
-
-        <!-- hidden form to add book -->
-    <form id="addBookForm" onsubmit="addBookToList(event)">
-    <input type="hidden" name="title" />
-    <input type="hidden" name="author" />
-    <input type="hidden" name="publisher" />
-    <input type="hidden" name="publishedDate" />
-    <input type="hidden" name="description" />
-    <input type="hidden" name="ISBN" />
-    <input type="hidden" name="pageCount" />
-    <input type="hidden" name="categories" />
-    <input type="hidden" name="averageRating" />
-    <input type="hidden" name="ratingsCount" />
-    <input type="hidden" name="imageLink" />
-    <input type="hidden" name="buyLink" />
-    <input type="hidden" name="webReaderLink" />
-    <button type="submit" class="btn btn-primary mt-3">Add to My List</button>
-</form>
-
     </div>
 
-    <!-- Where to Buy section -->
     <h2 class="mt-4">Where to Buy</h2>
-    <div id="buyLinks" class="mt-2">
-        <!-- Links will be populated dynamically based on the ISBN -->
-    </div>
+    <div id="buyLinks" class="mt-2"></div>
 
+    <h2 class="mt-4">Add to Your List</h2>
+    <form id="addBookForm" onsubmit="addBookToList(event)">
+        <input type="hidden" name="title" />
+        <input type="hidden" name="author" />
+        <input type="hidden" name="publisher" />
+        <input type="hidden" name="publishedDate" />
+        <input type="hidden" name="description" />
+        <input type="hidden" name="ISBN" />
+        <input type="hidden" name="pageCount" />
+        <input type="hidden" name="categories" />
+        <input type="hidden" name="averageRating" />
+        <input type="hidden" name="ratingsCount" />
+        <input type="hidden" name="imageLink" />
+        <input type="hidden" name="buyLink" />
+        <input type="hidden" name="webReaderLink" />
+        <button type="submit" class="btn btn-primary mt-2">Add to My List</button>
+    </form>
 </div>
-
 </body>
 </html>
