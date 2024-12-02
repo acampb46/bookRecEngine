@@ -74,6 +74,25 @@
         <p id="bookPublishedDate" class="text-muted"></p>
         <p id="bookPageCount" class="text-muted"></p>
         <p id="bookDescription"></p>
+
+        <!-- hidden form to add book -->
+    <form id="addBookForm" onsubmit="addBookToList(event)">
+    <input type="hidden" name="title" />
+    <input type="hidden" name="author" />
+    <input type="hidden" name="publisher" />
+    <input type="hidden" name="publishedDate" />
+    <input type="hidden" name="description" />
+    <input type="hidden" name="ISBN" />
+    <input type="hidden" name="pageCount" />
+    <input type="hidden" name="categories" />
+    <input type="hidden" name="averageRating" />
+    <input type="hidden" name="ratingsCount" />
+    <input type="hidden" name="imageLink" />
+    <input type="hidden" name="buyLink" />
+    <input type="hidden" name="webReaderLink" />
+    <button type="submit" class="btn btn-primary mt-3">Add to My List</button>
+</form>
+
     </div>
 
     <!-- Where to Buy section -->
